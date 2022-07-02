@@ -13,6 +13,8 @@ This is another Perl version, targeting ANSII compatible consoles. It delivers s
 
 Tools in other languages have been used in publications, system monitoring tools and for games. Term::Graille allows Perl programmers access to a expanding set of features for developing simple general purpose graphics, graphing applications, games etc from the console.
 
+Assocoiated with Term::Graille is Algorithm::Line::Bresenham. The plotting primitives in The latter are used in Graille
+
 Features to be included are colors, sprites, maps, and more on user request. 
 
 
