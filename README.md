@@ -7,8 +7,11 @@ This is another Perl version, targeting ANSII compatible consoles, and extends t
 
 * Turtle drawing graphics
 * Built-in drawing primitives including line and curve, circle, ellipse, polyline more on the way
-* scrolling with our without wrapping
+* scrolling with or without wrapping
 * some frame border manipulation
+* Text overlays
+
+This is to allow simple general purpose graphics, graphing applications, games etc from the console.
 
 Features to be included are colors, sprites, maps. 
 
