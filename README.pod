@@ -1,0 +1,191 @@
+=head1 NAME
+
+Term::Graille - Graphical Display in the terminal using UTF8 Braille characters
+
+=head1 SYNOPSIS
+ 
+  my $canvas = Term::Graille->new(
+    width  => 72,    # pixel width
+    height => 64,    # pixel height
+    top=>3,          # row position in terminal (optional,defaults to 1)
+    left=>10,        # column position (optional,defaults to 1)
+    borderStyle => "double",  # 
+  );
+
+=head1 DESCRIPTION
+
+Inspired by Drawille by asciimoo, which has many variants (including 
+a perl variant Term::Drawille by RHOELZ), this is a clone with a few
+extras. The goal is to achieve performance and features. with built-in
+turtle-like graphics, line and curve drawing (Algorithm::Line::Bresenham),
+scrolling, border setting, and more in development.
+
+=begin html
+
+<img src="https://user-images.githubusercontent.com/34284663/177032294-55dfda02-c24d-45c8-92ab-8c07ad39df66.gif">
+
+=end html
+
+
+=head1 FUNCTIONS
+
+
+=cut
+
+=head2 C<my $canvas=Term::Graille-E<gt>new(%params)>
+
+Creates a new canavas; params are
+C<width> The pixel width, required C<height> the pixel height, required,
+C<top> terminal row (optional,default 1) C<left> terminal column (
+optional,default 1) C<borderStyle> border type (optional,one of 'simple',
+'double', 'thin', 'thick' or 'shadow') C<borderColour> border colour (
+optional), C<title>  Title text for top border,(optional) C<titleColour> 
+Title colour (optional)
+
+
+=cut
+
+=head2 C<$canvas-E<gt>draw()> , C<$canvas-E<gt>draw($row, $column)>  
+
+Draws the canvas to the terminal window. Optional row and column
+parameters may be passed to position the displayed canvas.  If 
+borderStyle is specified, the border is drawn, If title is specified
+this is added to the top border
+
+
+=cut
+
+=head2 C<$canvas-E<gt>as_string()>  
+
+Returns the string containing the canvas of utf8 braille symbols, rows
+being separated by newline.
+
+
+=cut
+
+=head2 C<$canvas-E<gt>set($x,$y,$pixelValue)>  
+
+Sets a particular pixel on (default if C<$pixelValue> not sent) or off.
+
+
+=cut
+
+=head2 C<$canvas-E<gt>set($x,$y)>  
+
+Sets the pixel value at C<$x,$y> to blank 
+
+
+=cut
+
+=head2 C<$canvas-E<gt>pixel($x,$y)>  
+
+Gets the pixel value at C<$x,$y>
+
+
+=cut
+
+=head2 C<$canvas-E<gt>clear()>  
+
+Re-initialises the canvas with blank braille characters
+
+
+=cut
+
+=head2 C<$canvas-E<gt>line($x1,$y1,$x2,$y2,$value)>  
+
+Uses Algorithm::Line::Bresenham to draw a line from C<$x1,$y1> to C<$x2,$y2>.
+The optional value C<$value> sets or unsets the pixels
+
+
+=cut
+
+=head2 C<$canvas-E<gt>circle($x1,$y1,$radius,$value)>  
+
+Uses Algorithm::Line::Bresenham to draw a circle centered at C<$x1,$y1>
+with radius C<$radius> to C<$x2,$y2>.
+The optional value C<$value> sets or unsets the pixels
+
+
+=cut
+
+=head2 C<$canvas-E<gt>ellipse_rect($x1,$y1,$x2,$y2,$value)>    
+
+Uses Algorithm::Line::Bresenham to draw a rectangular ellipse,  (an 
+ellipse bounded by a rectangle defined by C<$x1,$y1,$x2,$y2>).
+The optional value C<$value> sets or unsets the pixels
+
+
+=cut
+
+=head2 C<$canvas-E<gt>quad_bezier($x1,$y1,$x2,$y2,$x3,$y3,$value)>    
+
+Uses Algorithm::Line::Bresenham to draw a quadratic bezier, defined by
+end points C<$x1,$y1,$x3,$y3>) and control point C<$x2,$y2>.
+The optional value C<$value> sets or unsets the pixels
+
+
+=cut
+
+=head2 C<$canvas-E<gt>polyline($x1,$y1,....,$xn,$yn,$value)>    
+
+Uses Algorithm::Line::Bresenham to draw a poly line, form a
+sequences of points.
+The optional value C<$value> sets or unsets the pixels
+
+
+=cut
+
+=head2 C<$canvas-E<gt>scroll($direction,$wrap)>    
+
+Scrolls in C<$direction>.  $direction may be
+"l", "left", "r","right", "u","up","d", "down". 
+Beacuse of the use of Braille characters, up/down scrolling is 4 pixels 
+at a time, whereas left right scrolling is 2 pixels at a time. If 
+C<$wrap> is a true value, the screen wraps around.
+
+
+=cut
+
+=head2 C<$canvas-E<gt>logo($script)>    
+
+Interface to Graille's built in Turtle interpreter.
+A string is taken and split by senicolons or newlines into intsructions.
+The instructions are trimmed, and split by the first space character into 
+command and parameters. Very simple in other words.
+
+C<"fd distance">  pen moves forward a certain distance.  
+C<"lt angle">, C<"rt angle"> turns left or right.  
+C<"bk distance"> pen moves back a certain distance. 
+C<"pu">, C<"pd"> Pen is up or down, up means no drawing takes place,
+and down means the turtle draws as it moves.
+C<"dir"> set the direction at a specific angle in dgrees, 
+with 0 being directly left.
+C<"mv">moves pen to specific coordinates without drawing. 
+C<"ce"> centers the turtle in the middle of a canvas
+C<"sp"> allows animated drawing by specifiying the the number 
+of centiseconds between instructions
+
+
+=cut
+
+=head1 AUTHOR
+
+Saif Ahmed
+
+=head1 LICENSE
+
+Artistic
+
+=head1 INSTALLATION
+
+
+
+Manual install:
+
+    $ perl Makefile.PL
+    $ make
+    $ make install
+
+
+=cut
+

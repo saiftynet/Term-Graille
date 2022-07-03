@@ -1,6 +1,6 @@
 =head1 NAME
 
-Term::Graille - Terminal Graphics using Braille
+Term::Graille - Graphical Display in the terminal using UTF8 Braille characters
 
 =head1 SYNOPSIS
  
@@ -14,30 +14,37 @@ Term::Graille - Terminal Graphics using Braille
 
 =head1 DESCRIPTION
 
-Ispired by Drawille by asciimoo, which has many variants (including 
+Inspired by Drawille by asciimoo, which has many variants (including 
 a perl variant Term::Drawille by RHOELZ), this is a clone with a few
-extras. The goal for better performance and features. with built-in
+extras. The goal is to achieve performance and features. with built-in
 turtle-like graphics, line and curve drawing (Algorithm::Line::Bresenham),
 scrolling, border setting, and more in development.
+
+=begin html
+
+<img src="https://user-images.githubusercontent.com/34284663/177032294-55dfda02-c24d-45c8-92ab-8c07ad39df66.gif">
+
+=end html
+
 
 =head1 FUNCTIONS
 
 =cut
 
-
-
 package Term::Graille;
 
 use strict;use warnings;
-our $VERSION="0.02";
+our $VERSION="0.04";
 use utf8;
 use open ":std", ":encoding(UTF-8)";
 use lib "../";
+use base 'Exporter';
+our @EXPORT_OK = qw/colour paint printAt clearScreen border/;
 use Algorithm::Line::Bresenham 0.13;
 use Time::HiRes "sleep";
 
 
-=head2 C<Term::Graille->new(%params)>
+=head2 C<my $canvas=Term::Graille-E<gt>new(%params)>
 
 Creates a new canavas; params are
 C<width> The pixel width, required C<height> the pixel height, required,
@@ -48,7 +55,6 @@ optional), C<title>  Title text for top border,(optional) C<titleColour>
 Title colour (optional)
 
 =cut
-
 
 
 sub new{
@@ -72,15 +78,30 @@ sub new{
 }
 
 
+=head2 C<$canvas-E<gt>draw()> , C<$canvas-E<gt>draw($row, $column)>  
+
+Draws the canvas to the terminal window. Optional row and column
+parameters may be passed to position the displayed canvas.  If 
+borderStyle is specified, the border is drawn, If title is specified
+this is added to the top border
+
+=cut
+
 sub draw{
 	my ($self,$top,$left)=@_;  # the location on the screen can be overridden by passing row coloum position
 	$top//=$self->{top};$left//=$self->{left};
-	Display::border($top-1,$left-1,$top+@{$self->{grid}}-1,$left+@{$self->{grid}->[0]},$self->{borderStyle},$self->{borderColour})
+	border($top-1,$left-1,$top+@{$self->{grid}}-1,$left+@{$self->{grid}->[0]},$self->{borderStyle},$self->{borderColour})
 	    if defined $self->{borderStyle};
-	Display::printAt($top-1,$left+3,Display::paint($self->{title},$self->{titleColour})) if defined $self->{title}; ;
-	Display::printAt($top,$left, [reverse @{$self->{grid}}]);
+	printAt($top-1,$left+3,paint($self->{title},$self->{titleColour})) if defined $self->{title}; ;
+	printAt($top,$left, [reverse @{$self->{grid}}]);
 }
 
+=head2 C<$canvas-E<gt>as_string()>  
+
+Returns the string containing the canvas of utf8 braille symbols, rows
+being separated by newline.
+
+=cut
 
 sub as_string{
 	my $self=shift;
@@ -89,6 +110,11 @@ sub as_string{
 	return $str;
 }
 
+=head2 C<$canvas-E<gt>set($x,$y,$pixelValue)>  
+
+Sets a particular pixel on (default if C<$pixelValue> not sent) or off.
+
+=cut
 sub set{
 	use integer;
     push @_, 1 if @_ == 3;
@@ -105,6 +131,11 @@ sub set{
 	   (chr( ord($self->{unsetPix}-> [$xOffset]->[$yOffset]) & ord($self->{grid}->[$chrY]->[$chrX])));
 }
 
+=head2 C<$canvas-E<gt>set($x,$y)>  
+
+Sets the pixel value at C<$x,$y> to blank 
+
+=cut
 sub unset{
 	my ($self,$x,$y)=@_;
 	$self->set($x,$y,0);
@@ -120,7 +151,11 @@ sub charOffset{  # gets the character grid position and offset within that chara
 	
 }
 
+=head2 C<$canvas-E<gt>pixel($x,$y)>  
 
+Gets the pixel value at C<$x,$y>
+
+=cut
 sub pixel{ #get pixel value at coordinates
 	my ($self,$x,$y,$value)=@_;
 	
@@ -134,13 +169,24 @@ sub pixel{ #get pixel value at coordinates
 	return $orOp == ord('⠀')?0:1;
 }
 
+=head2 C<$canvas-E<gt>clear()>  
+
+Re-initialises the canvas with blank braille characters
+
+=cut
 sub clear{
 	my $self=shift;
     $self->{grid}=[map {[('⠀')x ($self->{width}/2+($self->{width}%2?1:0))]}(0..($self->{height}/4+($self->{height}%4?1:0)))];
-                  # arrays containing Braille characters to bitwise OR or AND to set or unset individual pixels
 }
 
 # Pixel plotting primitives for shapes using Bresenham (Algorithm::Line::Bresenham)
+
+=head2 C<$canvas-E<gt>line($x1,$y1,$x2,$y2,$value)>  
+
+Uses Algorithm::Line::Bresenham to draw a line from C<$x1,$y1> to C<$x2,$y2>.
+The optional value C<$value> sets or unsets the pixels
+
+=cut
 
 sub line{
     push @_, 1 if @_ == 5;    # final optional parameter is set to one if not given
@@ -149,12 +195,30 @@ sub line{
 	$self->set(@$_,$value) foreach (@points);
 }
 
+
+=head2 C<$canvas-E<gt>circle($x1,$y1,$radius,$value)>  
+
+Uses Algorithm::Line::Bresenham to draw a circle centered at C<$x1,$y1>
+with radius C<$radius> to C<$x2,$y2>.
+The optional value C<$value> sets or unsets the pixels
+
+=cut
+
 sub circle{
     push @_, 1 if @_ == 4;
 	my ($self,$x1,$y1,$radius,$value)=@_;
 	my @points=Algorithm::Line::Bresenham::circle($x1,$y1,$radius);
 	$self->set(@$_,$value) foreach (@points);
 }
+
+
+=head2 C<$canvas-E<gt>ellipse_rect($x1,$y1,$x2,$y2,$value)>    
+
+Uses Algorithm::Line::Bresenham to draw a rectangular ellipse,  (an 
+ellipse bounded by a rectangle defined by C<$x1,$y1,$x2,$y2>).
+The optional value C<$value> sets or unsets the pixels
+
+=cut
 
 sub ellipse_rect{
     push @_, 1 if @_ == 5;
@@ -163,6 +227,15 @@ sub ellipse_rect{
 	$self->set(@$_,$value) foreach (@points);
 }
 
+=head2 C<$canvas-E<gt>quad_bezier($x1,$y1,$x2,$y2,$x3,$y3,$value)>    
+
+Uses Algorithm::Line::Bresenham to draw a quadratic bezier, defined by
+end points C<$x1,$y1,$x3,$y3>) and control point C<$x2,$y2>.
+The optional value C<$value> sets or unsets the pixels
+
+=cut
+
+
 sub quad_bezier{
     push @_, 1 if @_ == 7;
 	my ($self,$x1,$y1,$x2,$y2,$x3,$y3,$value)=@_;
@@ -170,23 +243,40 @@ sub quad_bezier{
 	$self->set(@$_,$value) foreach (@points);
 }
 
+=head2 C<$canvas-E<gt>polyline($x1,$y1,....,$xn,$yn,$value)>    
+
+Uses Algorithm::Line::Bresenham to draw a poly line, form a
+sequences of points.
+The optional value C<$value> sets or unsets the pixels
+
+=cut
+
+
 sub polyline{
     my $self=shift;
     my @vertices=@_;
-    my $value= pop @vertices unless @vertices % 2;
+    my $value= pop @vertices unless (@vertices & 1);
     $value//=1;
     my @points=Algorithm::Line::Bresenham::polyline(@vertices);
 	$self->set(@$_,$value) foreach (@points);
 }
 
-
-
 sub degToRad{
 	return 3.14159267*$_[0]/180 ;
 }
 
+=head2 C<$canvas-E<gt>scroll($direction,$wrap)>    
+
+Scrolls in C<$direction>.  $direction may be
+"l", "left", "r","right", "u","up","d", "down". 
+Beacuse of the use of Braille characters, up/down scrolling is 4 pixels 
+at a time, whereas left right scrolling is 2 pixels at a time. If 
+C<$wrap> is a true value, the screen wraps around.
+
+=cut
+
 sub scroll{
-	my ($self,$direction,$numberOfChar,$wrap)=@_;
+	my ($self,$direction,$wrap,$numberOfChar)=@_;
 	$numberOfChar//=1;$wrap//=0;
 	for($direction){
 		/^r/i && do{
@@ -228,11 +318,32 @@ sub scroll{
 }
 
 
-# turtle graphics subroutine, parses and interprets a string of drawing instructions 
+=head2 C<$canvas-E<gt>logo($script)>    
+
+Interface to Graille's built in Turtle interpreter.
+A string is taken and split by senicolons or newlines into intsructions.
+The instructions are trimmed, and split by the first space character into 
+command and parameters. Very simple in other words.
+
+C<"fd distance">  pen moves forward a certain distance.  
+C<"lt angle">, C<"rt angle"> turns left or right.  
+C<"bk distance"> pen moves back a certain distance. 
+C<"pu">, C<"pd"> Pen is up or down, up means no drawing takes place,
+and down means the turtle draws as it moves.
+C<"dir"> set the direction at a specific angle in dgrees, 
+with 0 being directly left.
+C<"mv">moves pen to specific coordinates without drawing. 
+C<"ce"> centers the turtle in the middle of a canvas
+C<"sp"> allows animated drawing by specifiying the the number 
+of centiseconds between instructions
+
+=cut
+
 sub logo{   
 	my ($self,$script)=@_;
 	my @commands= map{s/^\s+|\s+$//g; $_}split(/[\n;]+/,$script);
 	foreach my $instr (@commands){
+		next if ($instr=~/#/);
 		my ($c,$p)=split(/[\s]+/,$instr,2);
 		my @pars=split(/,/,$p) if $p;
 		for ($c){
@@ -297,9 +408,6 @@ sub logo{
 	}
 }
 
-
-package Display;
-
 our %borders=(
   simple=>{tl=>"+", t=>"-", tr=>"+", l=>"|", r=>"|", bl=>"+", b=>"-", br=>"+",},
   double=>{tl=>"╔", t=>"═", tr=>"╗", l=>"║", r=>"║", bl=>"╚", b=>"═", br=>"╝",},
@@ -359,9 +467,10 @@ Saif Ahmed
 
 =head1 LICENSE
 
-Artististic, Same as Perl
+Artistic
 
 =head1 INSTALLATION
+
 
 
 Manual install:

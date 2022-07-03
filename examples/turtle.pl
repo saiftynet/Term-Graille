@@ -1,10 +1,8 @@
 #! /usr/bin/env perl
 use strict; use warnings;
 use lib "../lib/";
- use Term::Graille;
+ use Term::Graille  qw/colour paint printAt clearScreen border/;
  use Time::HiRes "sleep";
- 
-Display::clearScreen();
  
   my $canvas = Term::Graille->new(
     width  => 72,
@@ -13,7 +11,8 @@ Display::clearScreen();
     left=>10,
     borderStyle => "double",
   );
-  
+clearScreen();  
+
 my %letters18=(
 	A=>"lt 80;fd 20;rt 160; fd 20;pu;rt 160;fd 8;pd;rt 120; fd 3;pu; rt 80;fd 7; lt 83; fd 2; pd;",
 	B=>"lt 90;fd 18;rt 90;". ("fd 4;rt 45;"x4)."fd 4;rt 180;". ("fd 4;rt 45;"x4)."fd 4;rt 180; pu; fd 10;pd;",
@@ -31,22 +30,28 @@ my %letters18=(
 
   
 logo();
-#turtle();
-#cube();
-#lines();
-#waves();
-
+turtle();
+cube();
+lines();
+waves();
  
-Display::printAt(18,50," ");
-
-
-
+printAt(20,50," ");
 
 sub logo{
    $canvas->clear();
    $canvas->{borderColour}="cyan";
    $canvas->{title}="Term::Graille";
    $canvas->logo("pu;rt 90; fd 25; rt 90;fd 31;lt 180;pd;");
+   printAt(5,50, paint("Introducing Term::Graille", "white on_black"));
+   printAt(7,50, paint(["Inspired by Drawille by",
+                                          "asciimoo, which has many",
+                                          "variants (including a ",
+                                          "Perl variant Term::Drawille",
+                                          "by RHOELZ), this is a clone",
+                                          "with a few extras. The goal",
+                                          "is to deliver better",
+                                          "performance and features.   "],"yellow"));
+   
    
    $canvas->logo($letters18{G});
    $canvas->logo($letters18{R});
@@ -62,7 +67,7 @@ sub logo{
  #  $canvas->logo($letters18{C});
   #$canvas->logo("fd 35;lt 75") for (0..23);
    $canvas->draw();
-   sleep 0.5;
+   sleep 3;
    for (0..40){
      $canvas->scroll("r");
      sleep 0.05;
@@ -77,9 +82,13 @@ sub turtle{
    $canvas->clear();
    $canvas->{borderColour}="magenta";
    $canvas->{title}="Turtle";
-   Display::printAt(5,50, Display::paint("Turtle Graphics", "blue on_yellow"));
-   Display::printAt(7,50, Display::paint(["This early version supports","fd,bk,lt,rt,pu,pd,ce,sp" ], "yellow"));
-   Display::printAt(10,50, Display::paint(["\$canvas->logo('fd 35;lt 75')","   for (0..23);"], "green"));
+   printAt(5,50, paint("Turtle Graphics          ", "white on_black"));
+   printAt(7,50, paint(["This early version supports ",
+                                          "Turtle-like drawing as well e.g.",
+                                          "fd,bk,lt,rt,pu,pd,ce,sp "," "x30,], "yellow"));
+   printAt(11,50, paint(["\$canvas->logo('fd 35;lt 75')",
+                                          "   for (0..23);               ",  
+                                          " "x 30," "x30," "x 30," "x30,], "green"));
    $canvas->logo("ce;pu; sp 20;fd 20;lt 90; fd 20; lt 90; pd");
    $canvas->logo("fd 35;lt 75") for (0..23);
 }      
@@ -93,11 +102,11 @@ sub cube{
 	my $rot = atan2(0, -1) / 3;         # middle corners every 60 degrees          
 	$canvas->{borderColour}="green";
 
-   Display::printAt(5,50, Display::paint("Animated drawings", "blue on_yellow"));
-   Display::printAt(7,50, Display::paint(["Rotating cube.  This algorithm ",
+   printAt(5,50, paint("Animated drawings              ", "white on_black"));
+   printAt(7,50, paint(["Rotating cube.  This algorithm ",
                                           "was adapted from code from     ",
                                           "http://www.rosettacode.org/    ",
-                                          " "x 30," "x30,],"yellow"));
+                                          " "x 30," "x30," "x30," "x30,],"yellow"));
 	$canvas->{title}="Rotating Cube";
 	  foreach my $a (0..300)
 	  {
@@ -126,15 +135,15 @@ sub lines{
    $canvas->clear();;
    $canvas->{borderColour}="yellow";
 	$canvas->{title}="Lines, Curves, Circles Etc";
-   Display::printAt(5,50,  Display::paint("Drawing Primitives    ", "blue on_yellow"));
-   Display::printAt(7,50,  Display::paint("Lines                         ","yellow"));
-   Display::printAt(8,50,  Display::paint["\$canvas->line(10,10,         ",
-                                          "               30,30)        "],"green");
-   Display::printAt(10,50, Display::paint("Curves                       ","yellow"));
-   Display::printAt(11,50, Display::paint["\$canvas->quad_bezier(10,10, ",
-                                          "               30,30,50,10); "],"green");
-   Display::printAt(13,50, Display::paint("Circles                    ","yellow"));
-   Display::printAt(14,50, Display::paint("\$canvas->circle(30,30,5); ", "green"));
+   printAt(5,50,  paint("Drawing Primitives    ", "white on_black"));
+   printAt(7,50,  paint("Lines                         ","yellow"));
+   printAt(8,50,  paint(["\$canvas->line(10,10,         ",
+                                          "               30,30)        "],"green"));
+   printAt(10,50, paint("Curves                       ","yellow"));
+   printAt(11,50, paint(["\$canvas->quad_bezier(10,10, ",
+                                          "               30,30,50,10); "],"green"));
+   printAt(13,50, paint("Circles                    ","yellow"));
+   printAt(14,50, paint("\$canvas->circle(30,30,5); ", "green"));
 
 	 $canvas->quad_bezier(10,10,30,30,50,10);
 	 sleep 0.5;	  $canvas->draw();
@@ -160,24 +169,24 @@ sub  waves{
    $canvas->clear();;
    $canvas->{borderColour}="blue";
    $canvas->{title}="Waves";	  
-      Display::printAt(5,50, Display::paint("Charting/graphing   ", "blue on_yellow"));
-   Display::printAt(7,50, Display::paint(["This version plots a line     ",
+   printAt(5,50, paint("Charting/graphing        ", "white on_black"));
+   printAt(7,50, paint(["This example plots a line     ",
                                           "on the left most two pixels   ",
                                           "and then scrolls the frame left   ",
                                           "by 2 pixels. e.g :-         ",
                                           " "x30], "yellow"));
-   Display::printAt(12,50, Display::paint(["foreach my \$c (1..1000){     ",
+   printAt(12,50, paint(["foreach my \$c (1..1000){     ",
                                           "\$canvas->line(70,20*sin(\$c/20)+",
                                           "40,71,20*sin((\$c+0.5)/20)+40);  ",
                                           "\$canvas->scroll('l');      ",
                                           "sleep 0.01;                 ",
                                           "\$canvas->draw();}          "], "green"));
- foreach my $c (1..1000){
+ foreach my $c (1..500){
      sleep .01;
      $canvas->line(70,20*sin($c/20)+40,71,20*sin(($c+0.5)/20)+40);
      $canvas->line(70,20*cos($c/2)+40,71,20*cos(($c+0.5)/2)+40);
      $canvas->scroll("l");
-	  $canvas->draw();
+	 $canvas->draw();
       
  }
  

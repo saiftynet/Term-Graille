@@ -1,0 +1,29 @@
+---
+abstract: 'Graphical Display in the terminal using UTF8 Braille characters'
+author:
+  - 'Saif Ahmed'
+build_requires:
+  ExtUtils::MakeMaker: '0'
+configure_requires:
+  ExtUtils::MakeMaker: '0'
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 7.34, CPAN::Meta::Converter version 2.150010'
+license: artistic
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: '1.4'
+name: Term-Graille
+no_index:
+  directory:
+    - t
+    - inc
+requires:
+  Algorithm::Line::Bresenham: '0.13'
+  Time::HiRes: '0'
+  perl: '5.010000'
+  strict: '0'
+  warnings: '0'
+resources:
+  repository: https://github.com/saiftynet/Term-Graille.git
+version: '0.04'
+x_serialization_backend: 'CPAN::Meta::YAML version 0.018'

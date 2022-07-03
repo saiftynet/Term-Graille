@@ -1,5 +1,5 @@
 {
-   "abstract" : "Terminal Graphics using Braille",
+   "abstract" : "Graphical Display in the terminal using UTF8 Braille characters",
    "author" : [
       "Saif Ahmed"
    ],
@@ -34,7 +34,7 @@
          "requires" : {
             "Algorithm::Line::Bresenham" : "0.13",
             "Time::HiRes" : "0",
-            "perl" : "5.008004",
+            "perl" : "5.010000",
             "strict" : "0",
             "warnings" : "0"
          }
@@ -48,6 +48,6 @@
          "web" : "https://github.com/saiftynet/Term-Graille"
       }
    },
-   "version" : "0.02",
+   "version" : "0.04",
    "x_serialization_backend" : "JSON::PP version 4.02"
 }
