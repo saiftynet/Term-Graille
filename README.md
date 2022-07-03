@@ -1,6 +1,9 @@
 # Term-Graille
 Braille Characters for Terminal Graphical Applications
 
+![termgraille](https://user-images.githubusercontent.com/34284663/177032294-55dfda02-c24d-45c8-92ab-8c07ad39df66.gif)
+
+
 Drawille is a method of using Braille characters as a mechanism for graphical display in a terminal.  Ports of the original by [asciimoo](https://github.com/asciimoo/drawille) exist inmultiple other languages including [Perl](https://metacpan.org/dist/Term-Drawille), [Java](https://github.com/null93/drawille), [Rust](https://crates.io/crates/drawille), [NodeJS](https://www.npmjs.com/package/drawille), and others.  The {Perl version](https://github.com/hoelzro/term-drawille) was initially produced by [@hoelzro](https://hoelz.ro/), but not much changed since about 8 years ago.
 
 This is another Perl version, targeting ANSII compatible consoles. It delivers significantly higher performance and extends Term::Drawille by including features like:- 
