@@ -1,3 +1,6 @@
+examples/convert2grl.pl
+examples/perl2.jpg
+examples/save.grl
 examples/turtle.pl
 lib/Term/Graille.pm
 Makefile.PL

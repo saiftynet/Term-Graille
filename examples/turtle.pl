@@ -75,9 +75,6 @@ sub logo{
  }
 }      
 
-
-
-
 sub turtle{
    $canvas->clear();
    $canvas->{borderColour}="magenta";
@@ -186,8 +183,7 @@ sub  waves{
      $canvas->line(70,20*sin($c/20)+40,71,20*sin(($c+0.5)/20)+40);
      $canvas->line(70,20*cos($c/2)+40,71,20*cos(($c+0.5)/2)+40);
      $canvas->scroll("l");
-	 $canvas->draw();
-      
+	 $canvas->draw();   
  }
  
 }

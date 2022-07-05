@@ -34,7 +34,7 @@ scrolling, border setting, and more in development.
 package Term::Graille;
 
 use strict;use warnings;
-our $VERSION="0.04";
+our $VERSION="0.05";
 use utf8;
 use open ":std", ":encoding(UTF-8)";
 use lib "../";
@@ -44,7 +44,7 @@ use Algorithm::Line::Bresenham 0.13;
 use Time::HiRes "sleep";
 
 
-=head2 C<my $canvas=Term::Graille-E<gt>new(%params)>
+=head3 C<my $canvas=Term::Graille-E<gt>new(%params)>
 
 Creates a new canavas; params are
 C<width> The pixel width, required C<height> the pixel height, required,
@@ -78,7 +78,7 @@ sub new{
 }
 
 
-=head2 C<$canvas-E<gt>draw()> , C<$canvas-E<gt>draw($row, $column)>  
+=head3 C<$canvas-E<gt>draw()> , C<$canvas-E<gt>draw($row, $column)>  
 
 Draws the canvas to the terminal window. Optional row and column
 parameters may be passed to position the displayed canvas.  If 
@@ -96,7 +96,7 @@ sub draw{
 	printAt($top,$left, [reverse @{$self->{grid}}]);
 }
 
-=head2 C<$canvas-E<gt>as_string()>  
+=head3 C<$canvas-E<gt>as_string()>  
 
 Returns the string containing the canvas of utf8 braille symbols, rows
 being separated by newline.
@@ -110,7 +110,7 @@ sub as_string{
 	return $str;
 }
 
-=head2 C<$canvas-E<gt>set($x,$y,$pixelValue)>  
+=head3 C<$canvas-E<gt>set($x,$y,$pixelValue)>  
 
 Sets a particular pixel on (default if C<$pixelValue> not sent) or off.
 
@@ -131,7 +131,7 @@ sub set{
 	   (chr( ord($self->{unsetPix}-> [$xOffset]->[$yOffset]) & ord($self->{grid}->[$chrY]->[$chrX])));
 }
 
-=head2 C<$canvas-E<gt>set($x,$y)>  
+=head3 C<$canvas-E<gt>set($x,$y)>  
 
 Sets the pixel value at C<$x,$y> to blank 
 
@@ -151,7 +151,7 @@ sub charOffset{  # gets the character grid position and offset within that chara
 	
 }
 
-=head2 C<$canvas-E<gt>pixel($x,$y)>  
+=head3 C<$canvas-E<gt>pixel($x,$y)>  
 
 Gets the pixel value at C<$x,$y>
 
@@ -169,7 +169,7 @@ sub pixel{ #get pixel value at coordinates
 	return $orOp == ord('⠀')?0:1;
 }
 
-=head2 C<$canvas-E<gt>clear()>  
+=head3 C<$canvas-E<gt>clear()>  
 
 Re-initialises the canvas with blank braille characters
 
@@ -181,7 +181,7 @@ sub clear{
 
 # Pixel plotting primitives for shapes using Bresenham (Algorithm::Line::Bresenham)
 
-=head2 C<$canvas-E<gt>line($x1,$y1,$x2,$y2,$value)>  
+=head3 C<$canvas-E<gt>line($x1,$y1,$x2,$y2,$value)>  
 
 Uses Algorithm::Line::Bresenham to draw a line from C<$x1,$y1> to C<$x2,$y2>.
 The optional value C<$value> sets or unsets the pixels
@@ -196,7 +196,7 @@ sub line{
 }
 
 
-=head2 C<$canvas-E<gt>circle($x1,$y1,$radius,$value)>  
+=head3 C<$canvas-E<gt>circle($x1,$y1,$radius,$value)>  
 
 Uses Algorithm::Line::Bresenham to draw a circle centered at C<$x1,$y1>
 with radius C<$radius> to C<$x2,$y2>.
@@ -212,7 +212,7 @@ sub circle{
 }
 
 
-=head2 C<$canvas-E<gt>ellipse_rect($x1,$y1,$x2,$y2,$value)>    
+=head3 C<$canvas-E<gt>ellipse_rect($x1,$y1,$x2,$y2,$value)>    
 
 Uses Algorithm::Line::Bresenham to draw a rectangular ellipse,  (an 
 ellipse bounded by a rectangle defined by C<$x1,$y1,$x2,$y2>).
@@ -227,7 +227,7 @@ sub ellipse_rect{
 	$self->set(@$_,$value) foreach (@points);
 }
 
-=head2 C<$canvas-E<gt>quad_bezier($x1,$y1,$x2,$y2,$x3,$y3,$value)>    
+=head3 C<$canvas-E<gt>quad_bezier($x1,$y1,$x2,$y2,$x3,$y3,$value)>    
 
 Uses Algorithm::Line::Bresenham to draw a quadratic bezier, defined by
 end points C<$x1,$y1,$x3,$y3>) and control point C<$x2,$y2>.
@@ -243,7 +243,7 @@ sub quad_bezier{
 	$self->set(@$_,$value) foreach (@points);
 }
 
-=head2 C<$canvas-E<gt>polyline($x1,$y1,....,$xn,$yn,$value)>    
+=head3 C<$canvas-E<gt>polyline($x1,$y1,....,$xn,$yn,$value)>    
 
 Uses Algorithm::Line::Bresenham to draw a poly line, form a
 sequences of points.
@@ -265,7 +265,7 @@ sub degToRad{
 	return 3.14159267*$_[0]/180 ;
 }
 
-=head2 C<$canvas-E<gt>scroll($direction,$wrap)>    
+=head3 C<$canvas-E<gt>scroll($direction,$wrap)>    
 
 Scrolls in C<$direction>.  $direction may be
 "l", "left", "r","right", "u","up","d", "down". 
@@ -317,8 +317,28 @@ sub scroll{
 	}
 }
 
+sub exportCanvas{
+	my ($self,$file)=@_;
+	open (my $fh, ">$file") or die "can not open $file for writing $!";
+	binmode($fh, ":utf8");
+	print $fh $self->as_string();
+	close $fh; 
+	
+}
 
-=head2 C<$canvas-E<gt>logo($script)>    
+sub importCanvas{
+	my ($self,$file)=@_;
+	open (my $fh,'<', $file) or die "can not open $file for reading $!";
+	my @grd;
+	while (<$fh>){
+		last if (@grd > ($self->{height}/4));
+		unshift @grd, [split(//,substr($_.('⠀')x($self->{width}/2),0,$self->{width}/2))];
+	}
+	close $fh; 
+	$self->{grid}=[@grd];
+}
+
+=head3 C<$canvas-E<gt>logo($script)>    
 
 Interface to Graille's built in Turtle interpreter.
 A string is taken and split by senicolons or newlines into intsructions.
@@ -407,6 +427,36 @@ sub logo{
 	   }  
 	}
 }
+
+
+=head3 Exported Routines    
+
+Graille exports some functions for additional console graphical manipulation
+This includes drawing of borders, printing characters at specific locations
+in the terminal window, and colouring the characters, clearing the screen, etc.
+
+  printAt($row,$column,@textRows); 
+
+Prints text sent as a scalar, a list of scalars or a reference to list
+of scalars, at a specific location on the screen.  Lists are printed 
+from the same column but increasing row positions.
+
+  border($top,$left,$bottom,$right,$style,$colour);
+
+Draws a border box.
+
+  paint($txt,$fmt)
+  
+Paints text the colour and background specified, $text may be a string, or ref 
+to a list of strings. This is combined with C<printAt()> abouve
+
+  clearScreen()
+  
+Guess what? clears the enire screen. This is different from C<$canvas-E<gt>clear()>
+which clears the Graille canvas.
+
+=cut
+
 
 our %borders=(
   simple=>{tl=>"+", t=>"-", tr=>"+", l=>"|", r=>"|", bl=>"+", b=>"-", br=>"+",},
