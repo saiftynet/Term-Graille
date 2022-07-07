@@ -22,7 +22,7 @@ Features to be included are colors, sprites, maps, and more on user request.
 
 Version 0.06
 
-Animation Demo
+## Animation Demo
 
 ![animate](https://user-images.githubusercontent.com/34284663/177872104-57463dc3-f7f7-47a8-a9ef-3c85b4dd923f.gif)
 
