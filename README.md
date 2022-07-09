@@ -24,6 +24,8 @@ Version 0.06
 
 ## Animation Demo
 
+This is an animation derived from a sprite sheet at [Adobe stck photos](https://stock.adobe.com/uk/images/cheetah-run-cycle-animation-sprite-sheet-silhouette-animation-frames-running-chasing/183196184) which do a 30 day free trial.
+
 ![animate](https://user-images.githubusercontent.com/34284663/177872104-57463dc3-f7f7-47a8-a9ef-3c85b4dd923f.gif)
 
 
