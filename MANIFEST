@@ -1,6 +1,39 @@
-examples/convert2grl.pl
+CHANGELOG
+examples/animations/cheetah/cheetah1.png
+examples/animations/cheetah/cheetah2.png
+examples/animations/cheetah/cheetah3.png
+examples/animations/cheetah/cheetah4.png
+examples/animations/cheetah/cheetah5.png
+examples/animations/cheetah/cheetah6.png
+examples/animations/cheetah/cheetah7.png
+examples/animations/cheetah/cheetah8.png
+examples/animations/chimp/chimp1.png
+examples/animations/chimp/chimp10.png
+examples/animations/chimp/chimp2.png
+examples/animations/chimp/chimp3.png
+examples/animations/chimp/chimp4.png
+examples/animations/chimp/chimp5.png
+examples/animations/chimp/chimp6.png
+examples/animations/chimp/chimp7.png
+examples/animations/chimp/chimp8.png
+examples/animations/chimp/chimp9.png
+examples/animations/dragon.png
+examples/fontDemo.pl
+'examples/fonts/Area51 Overwide.grf'
+'examples/fonts/Area51 Serif Bold.grf'
+examples/fonts/Area51.grf
+'examples/fonts/Cinema Bold.grf'
+'examples/fonts/Everest Bold.grf'
+'examples/fonts/Everest Condensed SemiBold.grf'
+'examples/fonts/Everest Condensed.grf'
+examples/fonts/Everest.grf
+examples/fonts/font2grf.pl
+examples/fonts/Mutual.grf
+examples/image2grl.pl
+examples/perl2.grl
 examples/perl2.jpg
-examples/save.grl
+examples/surmaphoto.png
+examples/testanimate.pl
 examples/turtle.pl
 lib/Term/Graille.pm
 Makefile.PL

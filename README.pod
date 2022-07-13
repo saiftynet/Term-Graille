@@ -32,7 +32,7 @@ scrolling, border setting, and more in development.
 
 =cut
 
-=head2 C<my $canvas=Term::Graille-E<gt>new(%params)>
+=head3 C<my $canvas=Term::Graille-E<gt>new(%params)>
 
 Creates a new canavas; params are
 C<width> The pixel width, required C<height> the pixel height, required,
@@ -45,7 +45,7 @@ Title colour (optional)
 
 =cut
 
-=head2 C<$canvas-E<gt>draw()> , C<$canvas-E<gt>draw($row, $column)>  
+=head3 C<$canvas-E<gt>draw()> , C<$canvas-E<gt>draw($row, $column)>  
 
 Draws the canvas to the terminal window. Optional row and column
 parameters may be passed to position the displayed canvas.  If 
@@ -55,7 +55,7 @@ this is added to the top border
 
 =cut
 
-=head2 C<$canvas-E<gt>as_string()>  
+=head3 C<$canvas-E<gt>as_string()>  
 
 Returns the string containing the canvas of utf8 braille symbols, rows
 being separated by newline.
@@ -63,35 +63,35 @@ being separated by newline.
 
 =cut
 
-=head2 C<$canvas-E<gt>set($x,$y,$pixelValue)>  
+=head3 C<$canvas-E<gt>set($x,$y,$pixelValue)>  
 
 Sets a particular pixel on (default if C<$pixelValue> not sent) or off.
 
 
 =cut
 
-=head2 C<$canvas-E<gt>set($x,$y)>  
+=head3 C<$canvas-E<gt>unset($x,$y)>  
 
 Sets the pixel value at C<$x,$y> to blank 
 
 
 =cut
 
-=head2 C<$canvas-E<gt>pixel($x,$y)>  
+=head3 C<$canvas-E<gt>pixel($x,$y)>  
 
 Gets the pixel value at C<$x,$y>
 
 
 =cut
 
-=head2 C<$canvas-E<gt>clear()>  
+=head3 C<$canvas-E<gt>clear()>  
 
 Re-initialises the canvas with blank braille characters
 
 
 =cut
 
-=head2 C<$canvas-E<gt>line($x1,$y1,$x2,$y2,$value)>  
+=head3 C<$canvas-E<gt>line($x1,$y1,$x2,$y2,$value)>  
 
 Uses Algorithm::Line::Bresenham to draw a line from C<$x1,$y1> to C<$x2,$y2>.
 The optional value C<$value> sets or unsets the pixels
@@ -99,7 +99,7 @@ The optional value C<$value> sets or unsets the pixels
 
 =cut
 
-=head2 C<$canvas-E<gt>circle($x1,$y1,$radius,$value)>  
+=head3 C<$canvas-E<gt>circle($x1,$y1,$radius,$value)>  
 
 Uses Algorithm::Line::Bresenham to draw a circle centered at C<$x1,$y1>
 with radius C<$radius> to C<$x2,$y2>.
@@ -108,7 +108,7 @@ The optional value C<$value> sets or unsets the pixels
 
 =cut
 
-=head2 C<$canvas-E<gt>ellipse_rect($x1,$y1,$x2,$y2,$value)>    
+=head3 C<$canvas-E<gt>ellipse_rect($x1,$y1,$x2,$y2,$value)>    
 
 Uses Algorithm::Line::Bresenham to draw a rectangular ellipse,  (an 
 ellipse bounded by a rectangle defined by C<$x1,$y1,$x2,$y2>).
@@ -117,7 +117,7 @@ The optional value C<$value> sets or unsets the pixels
 
 =cut
 
-=head2 C<$canvas-E<gt>quad_bezier($x1,$y1,$x2,$y2,$x3,$y3,$value)>    
+=head3 C<$canvas-E<gt>quad_bezier($x1,$y1,$x2,$y2,$x3,$y3,$value)>    
 
 Uses Algorithm::Line::Bresenham to draw a quadratic bezier, defined by
 end points C<$x1,$y1,$x3,$y3>) and control point C<$x2,$y2>.
@@ -126,7 +126,7 @@ The optional value C<$value> sets or unsets the pixels
 
 =cut
 
-=head2 C<$canvas-E<gt>polyline($x1,$y1,....,$xn,$yn,$value)>    
+=head3 C<$canvas-E<gt>polyline($x1,$y1,....,$xn,$yn,$value)>    
 
 Uses Algorithm::Line::Bresenham to draw a poly line, form a
 sequences of points.
@@ -135,7 +135,9 @@ The optional value C<$value> sets or unsets the pixels
 
 =cut
 
-=head2 C<$canvas-E<gt>scroll($direction,$wrap)>    
+=head2 Character Level Functions;
+
+=head3 C<$canvas-E<gt>scroll($direction,$wrap)>    
 
 Scrolls in C<$direction>.  $direction may be
 "l", "left", "r","right", "u","up","d", "down". 
@@ -146,12 +148,31 @@ C<$wrap> is a true value, the screen wraps around.
 
 =cut
 
-=head2 C<$canvas-E<gt>logo($script)>    
+=head3 C<$canvas-E<gt>blockBlit($block,$gridX, $gridY)> 
+
+Allows blitting a 2d arrays to a grid location in the canvas.  Useful for 
+printing using a Graille font.
+
+
+=cut
+
+=head3 C<$canvas-E<gt>exportCanvas($filename)> , C<$canvas-E<gt>importCanvas($filename)>
+
+This allows the loading and unloading of a canvas from a file.  There is
+no checking of the dimension of the canvas being imported at the moment
+
+
+=cut
+
+=head2  Enhancements
+ 
+=head3 C<$canvas-E<gt>logo($script)>    
 
 Interface to Graille's built in Turtle interpreter.
-A string is taken and split by senicolons or newlines into intsructions.
+A string is taken and split by senicolons or newlines into instructions.
 The instructions are trimmed, and split by the first space character into 
-command and parameters. Very simple in other words.
+command and parameters. Very simple in other words. No syntax checking
+is done 
 
 C<"fd distance">  pen moves forward a certain distance.  
 C<"lt angle">, C<"rt angle"> turns left or right.  
@@ -164,6 +185,48 @@ C<"mv">moves pen to specific coordinates without drawing.
 C<"ce"> centers the turtle in the middle of a canvas
 C<"sp"> allows animated drawing by specifiying the the number 
 of centiseconds between instructions
+
+
+=cut
+
+=head3 Exported Routines   
+
+Graille exports some functions for additional console graphical manipulation
+This includes drawing of borders, printing characters at specific locations
+in the terminal window, and colouring the characters, clearing the screen, etc.
+
+  printAt($row,$column,@textRows); 
+
+Prints text sent as a scalar, a list of scalars or a reference to list
+of scalars, at a specific location on the screen.  Lists are printed 
+from the same column but increasing row positions.
+
+  border($top,$left,$bottom,$right,$style,$colour);
+
+Draws a border box.
+
+  paint($txt,$fmt)
+  
+Paints text the colour and background specified, $text may be a string, or ref 
+to a list of strings. This is combined with C<printAt()> abouve
+
+  clearScreen()
+  
+Guess what? clears the enire screen. This is different from C<$canvas-E<gt>clear()>
+which clears the Graille canvas.
+
+
+  block2braille($block)
+
+Given a block of binary data (a 2D Array ref of 8-bit data), return a
+corresponding 2d Array ref of braille blocks.  This is handy to convert, 
+say, binary font data tinto Braille blocks for blittting into the canvas;
+
+  pixelAt($block,$px,$py)
+  
+Given a binary block of data e.g.  a font or a sprite offered as a 2D Array ref
+find the pixel value at a certain coordinate in that block.
+
 
 
 =cut

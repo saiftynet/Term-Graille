@@ -34,12 +34,11 @@ scrolling, border setting, and more in development.
 package Term::Graille;
 
 use strict;use warnings;
-our $VERSION="0.05";
+our $VERSION="0.06";
 use utf8;
 use open ":std", ":encoding(UTF-8)";
-use lib "../";
 use base 'Exporter';
-our @EXPORT_OK = qw/colour paint printAt clearScreen border/;
+our @EXPORT_OK = qw/colour paint printAt clearScreen border block2braille pixelAt loadGrf/;
 use Algorithm::Line::Bresenham 0.13;
 use Time::HiRes "sleep";
 
@@ -94,6 +93,8 @@ sub draw{
 	    if defined $self->{borderStyle};
 	printAt($top-1,$left+3,paint($self->{title},$self->{titleColour})) if defined $self->{title}; ;
 	printAt($top,$left, [reverse @{$self->{grid}}]);
+	print colour("reset");
+	
 }
 
 =head3 C<$canvas-E<gt>as_string()>  
@@ -131,7 +132,7 @@ sub set{
 	   (chr( ord($self->{unsetPix}-> [$xOffset]->[$yOffset]) & ord($self->{grid}->[$chrY]->[$chrX])));
 }
 
-=head3 C<$canvas-E<gt>set($x,$y)>  
+=head3 C<$canvas-E<gt>unset($x,$y)>  
 
 Sets the pixel value at C<$x,$y> to blank 
 
@@ -265,6 +266,8 @@ sub degToRad{
 	return 3.14159267*$_[0]/180 ;
 }
 
+=head2 Character Level Functions;
+
 =head3 C<$canvas-E<gt>scroll($direction,$wrap)>    
 
 Scrolls in C<$direction>.  $direction may be
@@ -317,6 +320,32 @@ sub scroll{
 	}
 }
 
+
+=head3 C<$canvas-E<gt>blockBlit($block,$gridX, $gridY)> 
+
+Allows blitting a 2d arrays to a grid location in the canvas.  Useful for 
+printing using a Graille font.
+
+=cut
+
+sub blockBlit{
+	my ($self, $blk, $gridX, $gridY)=@_;
+	for my $x(0..$#{$blk->[0]}){
+		for my $y(0..$#$blk){
+			$self->{grid}->[$gridY+$y]->[$gridX+$x]=$blk->[$#$blk-$y]->[$x]
+		}
+	}
+}
+
+
+=head3 C<$canvas-E<gt>exportCanvas($filename)> , C<$canvas-E<gt>importCanvas($filename)>
+
+This allows the loading and unloading of a canvas from a file.  There is
+no checking of the dimension of the canvas being imported at the moment
+
+=cut
+
+
 sub exportCanvas{
 	my ($self,$file)=@_;
 	open (my $fh, ">$file") or die "can not open $file for writing $!";
@@ -338,12 +367,15 @@ sub importCanvas{
 	$self->{grid}=[@grd];
 }
 
+=head2  Enhancements
+ 
 =head3 C<$canvas-E<gt>logo($script)>    
 
 Interface to Graille's built in Turtle interpreter.
-A string is taken and split by senicolons or newlines into intsructions.
+A string is taken and split by senicolons or newlines into instructions.
 The instructions are trimmed, and split by the first space character into 
-command and parameters. Very simple in other words.
+command and parameters. Very simple in other words. No syntax checking
+is done 
 
 C<"fd distance">  pen moves forward a certain distance.  
 C<"lt angle">, C<"rt angle"> turns left or right.  
@@ -429,7 +461,7 @@ sub logo{
 }
 
 
-=head3 Exported Routines    
+=head3 Exported Routines   
 
 Graille exports some functions for additional console graphical manipulation
 This includes drawing of borders, printing characters at specific locations
@@ -455,6 +487,19 @@ to a list of strings. This is combined with C<printAt()> abouve
 Guess what? clears the enire screen. This is different from C<$canvas-E<gt>clear()>
 which clears the Graille canvas.
 
+
+  block2braille($block)
+
+Given a block of binary data (a 2D Array ref of 8-bit data), return a
+corresponding 2d Array ref of braille blocks.  This is handy to convert, 
+say, binary font data tinto Braille blocks for blittting into the canvas;
+
+  pixelAt($block,$px,$py)
+  
+Given a binary block of data e.g.  a font or a sprite offered as a 2D Array ref
+find the pixel value at a certain coordinate in that block.
+
+
 =cut
 
 
@@ -476,6 +521,7 @@ sub printAt{
   $blit.= "\033[".$row++.";".$column."H".(ref $_?join("",@$_):$_) foreach (@textRows) ;
   print $blit;
   print "\n"; # seems to flush the STDOUT buffer...if not then set $| to 1 
+
 };
 
 sub border{
@@ -506,6 +552,54 @@ sub colour{
   return join "",map {defined $colours{$_}?"\033[$colours{$_}m":""} @formats;
 }
 
+
+# given an 8 bit block of data, produce a braille block
+sub block2braille{
+	use integer;
+	my ($block)=@_;
+	my $pixelHeight=@$block;
+	my $pixelWidth=@{$block->[0]}*8;
+	my $brCharWidth=$pixelWidth/2 +($pixelWidth & 1?1:0);
+	my $brCharHeight=$pixelHeight/4 + ($pixelHeight & 1?1:0);
+	my $brBlk=[];
+	
+	foreach my $chX(0..($brCharWidth-1)){
+		foreach my $chY(0..($brCharHeight-1)){
+			my $b=ord('⠀');
+			$b|=ord('⠁') if (pixelAt($block,$chX*2,$chY*4));
+			$b|=ord('⠂') if (pixelAt($block,$chX*2,$chY*4+1));
+			$b|=ord('⠄') if (pixelAt($block,$chX*2,$chY*4+2));
+			$b|=ord('⡀') if (pixelAt($block,$chX*2,$chY*4+3));
+			$b|=ord('⠈') if (pixelAt($block,$chX*2+1,$chY*4));
+			$b|=ord('⠐') if (pixelAt($block,$chX*2+1,$chY*4+1));
+			$b|=ord('⠠') if (pixelAt($block,$chX*2+1,$chY*4+2));
+			$b|=ord('⢀') if (pixelAt($block,$chX*2+1,$chY*4+3));
+			$brBlk->[$chY]->[$chX]=chr($b);
+		}
+	}
+	return $brBlk;
+}
+
+# given a block of binary data identify pixel value at a
+# particular position
+sub pixelAt{ 
+	use integer;
+	my ($blk,$px,$py)=@_;
+	return (($blk->[$py]->[$px/8]) & 2**(7-($px%8)));
+}
+
+#loads a hashfile representing a 2D Array ref blocks of data
+#can be used to load fonts
+sub loadGrf{
+	my $file=shift;
+	open my $grf,"<:utf8",$file  or 
+	      die "Unable to open file $file $!;\n" ;
+	my $data="";
+	$data.=$_ while(<$grf>);
+	close $grf;
+	my $g=eval($data) or die "unable to load external data from $file $!";;
+	return  $g;
+}
 
 
 

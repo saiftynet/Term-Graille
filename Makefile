@@ -60,11 +60,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Term::Graille
 NAME_SYM = Term_Graille
-VERSION = 0.05
+VERSION = 0.06
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_05
+VERSION_SYM = 0_06
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.05
+XS_VERSION = 0.06
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -259,7 +259,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Term-Graille
-DISTVNAME = Term-Graille-0.05
+DISTVNAME = Term-Graille-0.06
 
 
 # --- MakeMaker macro section:
@@ -512,7 +512,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '  warnings: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'resources:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  repository: https://github.com/saiftynet/Term-Graille.git' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version: '\''0.05'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version: '\''0.06'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.018'\''' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
@@ -566,7 +566,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '         "web" : "https://github.com/saiftynet/Term-Graille"' >> META_new.json
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
 	$(NOECHO) $(ECHO) '   },' >> META_new.json
-	$(NOECHO) $(ECHO) '   "version" : "0.05",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "version" : "0.06",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "x_serialization_backend" : "JSON::PP version 4.02"' >> META_new.json
 	$(NOECHO) $(ECHO) '}' >> META_new.json
 	-$(NOECHO) $(MV) META_new.json $(DISTVNAME)/META.json
@@ -852,7 +852,7 @@ testdb_static :: static pure_all
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="Term-Graille" VERSION="0.05">' > Term-Graille.ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="Term-Graille" VERSION="0.06">' > Term-Graille.ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT>Graphical Display in the terminal using UTF8 Braille characters</ABSTRACT>' >> Term-Graille.ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>Saif Ahmed</AUTHOR>' >> Term-Graille.ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> Term-Graille.ppd

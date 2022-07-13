@@ -1,0 +1,30 @@
+CHANGELOG
+Term::Graille - Graphical Display in the terminal using UTF8 Braille characters
+
+0.06
+- Added print colour("reset") as suggested by https://github.com/jwrightecs
+- Added block2braille (convert 2d binary data to 2d braille)
+- Added blockBlit (blit 2d blocks of characters)
+- Added loadGrf (load blocks e.g. fonts)
+- Added importCanvas and exportCanvas  (load/save canvas from/to file)
+- Added font2grf to examples folder (convert fonts from https://damieng.com/typography/zx-origins to grf)
+- Added image2grl (convert image to  file loadable by Term::Graille *Needs Image::Magick)
+- Added testanimate (convert a folder containg frames into Graille Animation  *Needs Image::Magick)
+
+0.05 
+Failing CpanTesters
+- Error in 1.t corected
+- Added Import and export images
+- Created an image converter (Depends on Image::Magick)
+
+0.04
+Corrected error hightlighted by https://old.reddit.com/user/tarje
+- Perl Version set at v5.10.0
+- License file removed
+
+0.03 June 2022
+First version unploaded to CPAN
+
+0.02  June 2022
+First version converted form Drawille
+	
