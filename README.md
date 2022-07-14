@@ -24,8 +24,14 @@ Version 0.06
 
 ## Animation Demo
 
+The animation demo uses Image::Magick to convert a folder of frames into monochrome images, which are then conveetrd to bitmap plots on a canvas. These bitmap plots are displayed sequentially creating an animation. 
+
 This is an animation derived from a sprite sheet at [Adobe stock photos](https://stock.adobe.com/uk/images/cheetah-run-cycle-animation-sprite-sheet-silhouette-animation-frames-running-chasing/183196184) which do a 30 day free trial.
 
 ![animate](https://user-images.githubusercontent.com/34284663/177872104-57463dc3-f7f7-47a8-a9ef-3c85b4dd923f.gif)
+
+## Fonts
+
+In the initial demo above a Turtle script was used to produce a drawing of text.  This is rather combersome.  Fortunately bitmap fonts exist, and can be easily converted to Braille.  [DamienG](https://damieng.com/typography/zx-origins/) has produced a series of 8X8 fonts which can translated into 4X2 braille characters.  The fonts are consistently coded, so `font2grf.pl` in the example folders converts the Z80 assembly data into `.grf` files for importing into Graille.  Fonts are not the only thing that can be transformed, and one imagines potential for sprites of tilemaps to be similarly encoded.
 
 
