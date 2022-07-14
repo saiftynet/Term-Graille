@@ -5,7 +5,6 @@ use utf8;
 use open ":std", ":encoding(UTF-8)";
 use Term::Graille  qw/colour paint printAt clearScreen border loadGrf/;
 use Time::HiRes qw/sleep/;
-use Data::Dumper;
 
 my $canvas = Term::Graille->new(
     width  => 120,
