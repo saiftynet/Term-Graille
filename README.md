@@ -22,9 +22,16 @@ Features to be included are colors, sprites, maps, and more on user request.
 
 Version 0.06
 
+## Importing images
+
+Graille does not the resolution for fancy graphics.  Having said that, images converted into mono with appropriate dithering can be surpisingly recognisable at the low resolution oferred.  The `convert2grl.pl` script in the examples folder uses Image Magick to perform the transromation down to a Graille canvas's resolutions
+, and plotted on to the canvas pixel by pixel.  Graille offers the option to import or export `.grl` files  
+
+
+
 ## Animation Demo
 
-The animation demo uses Image::Magick to convert a folder of frames into monochrome images, which are then conveetrd to bitmap plots on a canvas. These bitmap plots are displayed sequentially creating an animation. 
+The animation demo uses Image::Magick to convert a folder of frames into monochrome images, which are then converted to bitmap plots on a canvas. These bitmap plots are displayed sequentially creating an animation. 
 
 This is an animation derived from a sprite sheet at [Adobe stock photos](https://stock.adobe.com/uk/images/cheetah-run-cycle-animation-sprite-sheet-silhouette-animation-frames-running-chasing/183196184) which do a 30 day free trial.
 
