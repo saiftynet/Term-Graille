@@ -24,8 +24,9 @@ Version 0.06
 
 ## Importing images
 
-Graille does not the resolution for fancy graphics.  Having said that, images converted into mono with appropriate dithering can be surpisingly recognisable at the low resolution oferred.  The `convert2grl.pl` script in the examples folder uses Image Magick to perform the transromation down to a Graille canvas's resolutions
-, and plotted on to the canvas pixel by pixel.  Graille offers the option to import or export `.grl` files  
+Graille does not have the resolution for fancy graphics.  Having said that, images converted into mono with appropriate dithering can be surpisingly recognisable at the low resolution oferred.  The `image2grl.pl` script in the examples folder uses Image Magick to perform the transromation down to a Graille canvas's resolutions, and plotted on to the canvas pixel by pixel.  Graille offers the option to import or export `.grl` files.
+
+![grailleimage](https://user-images.githubusercontent.com/34284663/179080305-c24ab071-505b-485b-bff5-cb44ed76c27c.png)
 
 
 
@@ -40,5 +41,7 @@ This is an animation derived from a sprite sheet at [Adobe stock photos](https:/
 ## Fonts
 
 In the initial demo above a Turtle script was used to produce a drawing of text.  This is rather combersome.  Fortunately bitmap fonts exist, and can be easily converted to Braille.  [DamienG](https://damieng.com/typography/zx-origins/) has produced a series of 8X8 fonts which can translated into 4X2 braille characters.  The fonts are consistently coded, so `font2grf.pl` in the example folders converts the Z80 assembly data into `.grf` files for importing into Graille.  Fonts are not the only thing that can be transformed, and one imagines potential for sprites of tilemaps to be similarly encoded.
+
+![fonts](https://user-images.githubusercontent.com/34284663/179078012-69f9f535-8d41-46b0-ba68-0a5dbe613cd9.gif)
 
 
