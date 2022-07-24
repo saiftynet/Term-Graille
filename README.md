@@ -1,7 +1,7 @@
 # Term-Graille
 Braille Characters for Terminal Graphical Applications
 
-![termgraille](https://user-images.githubusercontent.com/34284663/177032294-55dfda02-c24d-45c8-92ab-8c07ad39df66.gif)
+![termgraille](https://user-images.githubusercontent.com/34284663/180637940-01b583a0-1a71-4a5d-a29b-394a940ce46f.gif)
 
 
 Drawille is a method of using Braille characters as a mechanism for graphical display in a terminal.  Ports of the original by [asciimoo](https://github.com/asciimoo/drawille) exist inmultiple other languages including [Perl](https://metacpan.org/dist/Term-Drawille), [Java](https://github.com/null93/drawille), [Rust](https://crates.io/crates/drawille), [NodeJS](https://www.npmjs.com/package/drawille), and others.  The [Perl version](https://github.com/hoelzro/term-drawille) was initially produced by [@hoelzro](https://hoelz.ro/), but not much changed since about 8 years ago.
@@ -27,8 +27,6 @@ Version 0.06
 Graille does not have the resolution for fancy graphics.  Having said that, images converted into mono with appropriate dithering can be surpisingly recognisable at the low resolution oferred.  The `image2grl.pl` script in the examples folder uses Image Magick to perform the transromation down to a Graille canvas's resolutions, and plotted on to the canvas pixel by pixel.  Graille offers the option to import or export `.grl` files.
 
 ![grailleimage](https://user-images.githubusercontent.com/34284663/179080305-c24ab071-505b-485b-bff5-cb44ed76c27c.png)
-
-
 
 ## Animation Demo
 
