@@ -38,7 +38,7 @@ This is an animation derived from a sprite sheet at [Adobe stock photos](https:/
 
 ## Fonts
 
-In the initial demo above a Turtle script was used to produce a drawing of text.  This is rather combersome.  Fortunately bitmap fonts exist, and can be easily converted to Braille.  [DamienG](https://damieng.com/typography/zx-origins/) has produced a series of 8X8 fonts which can translated into 4X2 braille characters.  The fonts are consistently coded, so `font2grf.pl` in the example folders converts the Z80 assembly data into `.grf` files for importing into Graille.  Fonts are not the only thing that can be transformed, and one imagines potential for sprites of tilemaps to be similarly encoded.
+In the initial demo above a Turtle script was used to produce a drawing of text.  This is rather combersome.  Fortunately bitmap fonts exist, and can be easily converted to Braille.  [DamienG](https://damieng.com/typography/zx-origins/) has produced a series of 8X8 fonts which can translated into 4X2 braille characters.  The fonts are consistently coded, so `font2grf.pl` in the example folders converts the Z80 assembly data into `.grf` files for importing into Graille.  Fonts are not the only thing that can be transformed, and one imagines potential for sprites or tilemaps to be similarly encoded.
 
 ![fonts](https://user-images.githubusercontent.com/34284663/179078012-69f9f535-8d41-46b0-ba68-0a5dbe613cd9.gif)
 
