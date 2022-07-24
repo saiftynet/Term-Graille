@@ -60,11 +60,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Term::Graille
 NAME_SYM = Term_Graille
-VERSION = 0.06
+VERSION = 0.07
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_06
+VERSION_SYM = 0_07
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.06
+XS_VERSION = 0.07
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -166,7 +166,8 @@ C_FILES  =
 O_FILES  = 
 H_FILES  = 
 MAN1PODS = 
-MAN3PODS = lib/Term/Graille.pm
+MAN3PODS = lib/Term/Graille.pm \
+	lib/Term/Graille/Font.pm
 
 # Where is the Config information that we are using/depend on
 CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)Config.pm $(PERL_INCDEP)$(DFSEP)config.h
@@ -189,7 +190,8 @@ PERL_ARCHIVEDEP    =
 PERL_ARCHIVE_AFTER = 
 
 
-TO_INST_PM = lib/Term/Graille.pm
+TO_INST_PM = lib/Term/Graille.pm \
+	lib/Term/Graille/Font.pm
 
 
 # --- MakeMaker platform_constants section:
@@ -259,7 +261,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Term-Graille
-DISTVNAME = Term-Graille-0.06
+DISTVNAME = Term-Graille-0.07
 
 
 # --- MakeMaker macro section:
@@ -416,9 +418,11 @@ POD2MAN = $(POD2MAN_EXE)
 
 
 manifypods : pure_all config  \
-	lib/Term/Graille.pm
+	lib/Term/Graille.pm \
+	lib/Term/Graille/Font.pm
 	$(NOECHO) $(POD2MAN) --section=$(MAN3EXT) --perm_rw=$(PERM_RW) -u \
-	  lib/Term/Graille.pm $(INST_MAN3DIR)/Term::Graille.$(MAN3EXT) 
+	  lib/Term/Graille.pm $(INST_MAN3DIR)/Term::Graille.$(MAN3EXT) \
+	  lib/Term/Graille/Font.pm $(INST_MAN3DIR)/Term::Graille::Font.$(MAN3EXT) 
 
 
 
@@ -512,7 +516,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '  warnings: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'resources:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  repository: https://github.com/saiftynet/Term-Graille.git' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version: '\''0.06'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version: '\''0.07'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.018'\''' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
@@ -566,7 +570,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '         "web" : "https://github.com/saiftynet/Term-Graille"' >> META_new.json
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
 	$(NOECHO) $(ECHO) '   },' >> META_new.json
-	$(NOECHO) $(ECHO) '   "version" : "0.06",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "version" : "0.07",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "x_serialization_backend" : "JSON::PP version 4.02"' >> META_new.json
 	$(NOECHO) $(ECHO) '}' >> META_new.json
 	-$(NOECHO) $(MV) META_new.json $(DISTVNAME)/META.json
@@ -852,7 +856,7 @@ testdb_static :: static pure_all
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="Term-Graille" VERSION="0.06">' > Term-Graille.ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="Term-Graille" VERSION="0.07">' > Term-Graille.ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT>Graphical Display in the terminal using UTF8 Braille characters</ABSTRACT>' >> Term-Graille.ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>Saif Ahmed</AUTHOR>' >> Term-Graille.ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> Term-Graille.ppd
@@ -871,7 +875,8 @@ ppd :
 
 pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
-	  'lib/Term/Graille.pm' 'blib/lib/Term/Graille.pm' 
+	  'lib/Term/Graille.pm' 'blib/lib/Term/Graille.pm' \
+	  'lib/Term/Graille/Font.pm' 'blib/lib/Term/Graille/Font.pm' 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
 

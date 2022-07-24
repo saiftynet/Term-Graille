@@ -18,17 +18,23 @@ examples/animations/chimp/chimp7.png
 examples/animations/chimp/chimp8.png
 examples/animations/chimp/chimp9.png
 examples/animations/dragon.png
+examples/demo.pl
 examples/fontDemo.pl
 'examples/fonts/Area51 Overwide.grf'
 'examples/fonts/Area51 Serif Bold.grf'
 examples/fonts/Area51.grf
+examples/fonts/asm2grf.pl
 'examples/fonts/Cinema Bold.grf'
+examples/fonts/Coolant.grf
 'examples/fonts/Everest Bold.grf'
 'examples/fonts/Everest Condensed SemiBold.grf'
 'examples/fonts/Everest Condensed.grf'
 examples/fonts/Everest.grf
 examples/fonts/font2grf.pl
 examples/fonts/Mutual.grf
+'examples/fonts/Tentacle Bold.grf'
+examples/fonts/Tentacle.grf
+'examples/fonts/ZX Times.grf'
 examples/image2grl.pl
 examples/perl2.grl
 examples/perl2.jpg
@@ -36,7 +42,8 @@ examples/surmaphoto.png
 examples/testanimate.pl
 examples/turtle.pl
 lib/Term/Graille.pm
+lib/Term/Graille/Font.pm
 Makefile.PL
 MANIFEST			This list of files
-README.pod
 t/1.t
+Term-Graille-0.06.tar.gz

@@ -1,6 +1,12 @@
 CHANGELOG
 Term::Graille - Graphical Display in the terminal using UTF8 Braille characters
 
+0.07
+- Adds textAt () function allowing heterogenous content on the canvas
+- Adds colour to pixel and text and turtle graphics on the $canvas
+- Adds a Graille::Font module that imports converts and loads and saves fonts
+- loadGrf() moved to the new separate Graille::Font module
+
 0.06
 - Added print colour("reset") as suggested by https://github.com/jwrightecs
 - Added block2braille (convert 2d binary data to 2d braille)
@@ -9,7 +15,7 @@ Term::Graille - Graphical Display in the terminal using UTF8 Braille characters
 - Added importCanvas and exportCanvas  (load/save canvas from/to file)
 - Added font2grf to examples folder (convert fonts from https://damieng.com/typography/zx-origins to grf)
 - Added image2grl (convert image to  file loadable by Term::Graille *Needs Image::Magick)
-- Added testanimate (convert a folder containg frames into Graille Animation  *Needs Image::Magick)
+- Added testanimate (convert a folder containingg frames into Graille Animation  *Needs Image::Magick)
 
 0.05 
 Failing CpanTesters

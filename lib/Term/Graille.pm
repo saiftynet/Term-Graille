@@ -22,7 +22,7 @@ scrolling, border setting, and more in development.
 
 =begin html
 
-<img src="https://user-images.githubusercontent.com/34284663/177032294-55dfda02-c24d-45c8-92ab-8c07ad39df66.gif">
+<img src="https://user-images.githubusercontent.com/34284663/180637940-01b583a0-1a71-4a5d-a29b-394a940ce46f.gif">
 
 =end html
 
@@ -34,11 +34,11 @@ scrolling, border setting, and more in development.
 package Term::Graille;
 
 use strict;use warnings;
-our $VERSION="0.06";
+our $VERSION="0.07";
 use utf8;
 use open ":std", ":encoding(UTF-8)";
 use base 'Exporter';
-our @EXPORT_OK = qw/colour paint printAt clearScreen border block2braille pixelAt loadGrf/;
+our @EXPORT_OK = qw/colour paint printAt clearScreen border blockBlit block2braille pixelAt/;
 use Algorithm::Line::Bresenham 0.13;
 use Time::HiRes "sleep";
 
@@ -59,12 +59,12 @@ Title colour (optional)
 sub new{
     my ( $class, %params ) = @_;     #  params are width and height in pixels
     my $self={width=>$params{width},height=>$params{height}};
-    for my $key (qw/borderStyle borderColour title titleColour top left/){
+    for my $key (qw/borderStyle borderColour title titleColour top left cartesian/){
 		$self->{ $key}=$params{$key} if exists $params{$key}
 	}
 	$self->{top}//=1;
 	$self->{left}//=1;
-	                            
+	$self->{cartesian}//=1;                            
     $self->{setPix}=[['⡀','⠄','⠂','⠁'],['⢀','⠠','⠐','⠈']];
     $self->{unsetPix}=[['⢿','⣻','⣽','⣾'],['⡿','⣟','⣯','⣷']];
     $self->{logoVars}={x=>$self->{width}/2,  # integrated Turtle Graphics
@@ -89,9 +89,10 @@ this is added to the top border
 sub draw{
 	my ($self,$top,$left)=@_;  # the location on the screen can be overridden by passing row coloum position
 	$top//=$self->{top};$left//=$self->{left};
-	border($top-1,$left-1,$top+@{$self->{grid}}-1,$left+@{$self->{grid}->[0]},$self->{borderStyle},$self->{borderColour})
-	    if defined $self->{borderStyle};
-	printAt($top-1,$left+3,paint($self->{title},$self->{titleColour})) if defined $self->{title}; ;
+	border($top-1,$left-1,$top+@{$self->{grid}}-1,$left+@{$self->{grid}->[0]},
+	     $self->{borderStyle},$self->{borderColour},
+	     $self->{title},$self->{titleColour})
+	         if ((defined $self->{borderStyle})&&(ref $self->{grid} eq "ARRAY"));
 	printAt($top,$left, [reverse @{$self->{grid}}]);
 	print colour("reset");
 	
@@ -120,16 +121,20 @@ sub set{
 	use integer;
     push @_, 1 if @_ == 3;
 	my ($self,$x,$y,$value)=@_;
-	
 	#exit if out of bounds
-	return unless(($x<=$self->{width})&&($x>=0)&&($y<$self->{height})&&($y>=0));
-	
+	return unless(($x<$self->{width})&&($x>=0)&&($y<$self->{height})&&($y>=0));
 	#convert coordinates to character / pixel offset position
-	my $chrX=$x/2;my $xOffset=$x- $chrX*2; 
-	my $chrY=$y/4;my $yOffset=$y- $chrY*4;
-	$self->{grid}->[$chrY]->[$chrX]=$value?         # if $value is false, unset, or else set pixel
-	   (chr( ord($self->{setPix}  -> [$xOffset]->[$yOffset]) | ord($self->{grid}->[$chrY]->[$chrX]) ) ):
-	   (chr( ord($self->{unsetPix}-> [$xOffset]->[$yOffset]) & ord($self->{grid}->[$chrY]->[$chrX])));
+	my ($chrX,$chrY,$xOffset,$yOffset)=$self->charOffset($x,$y);
+	
+	my $bChr=chop($self->{grid}->[$chrY]->[$chrX]);
+	if ($value=~/^[a-z]/){$self->{grid}->[$chrY]->[$chrX]=colour($value);}
+	elsif ($value=~/^\033\[/){$self->{grid}->[$chrY]->[$chrX]=$value;}
+	# ensure character is a braille character to start with
+	$bChr='⠀' if (ord($bChr)&0x2800 !=0x2800); 
+	
+	$self->{grid}->[$chrY]->[$chrX].=$value?         # if $value is false, unset, or else set pixel
+	   (chr( ord($self->{setPix}  -> [$xOffset]->[$yOffset]) | ord($bChr) ) ):
+	   (chr( ord($self->{unsetPix}-> [$xOffset]->[$yOffset]) & ord($bChr)));
 }
 
 =head3 C<$canvas-E<gt>unset($x,$y)>  
@@ -144,8 +149,9 @@ sub unset{
 
 sub charOffset{  # gets the character grid position and offset within that character
 	             # give the pixel position
+	use integer;
 	my ($self,$x,$y)=@_;	
-	return undef unless(($x<$self->{width})&&($x>=0)&&($y<$self->{height})&&($x>=0));
+	return -1 unless(($x<$self->{width})&&($x>=0)&&($y<$self->{height})&&($x>=0));
 	my $chrX=$x/2;my $xOffset=$x- $chrX*2; 
 	my $chrY=$y/4;my $yOffset=$y- $chrY*4;
 	return ($chrX,$chrY,$xOffset,$yOffset);
@@ -176,16 +182,30 @@ Re-initialises the canvas with blank braille characters
 
 =cut
 sub clear{
-	my $self=shift;
-    $self->{grid}=[map {[('⠀')x ($self->{width}/2+($self->{width}%2?1:0))]}(0..($self->{height}/4+($self->{height}%4?1:0)))];
+	my ($self,$x1,$y1,$x2,$y2)=@_;
+    if(@_<2){
+		$self->{grid}=[map {[( '⠀')x ($self->{width}/2+($self->{width}%2?1:0))]}(0..($self->{height}/4+($self->{height}%4?1:0)))]
+	}
+	else{
+		my @xr=$x1>$x2?($x2..$x1):($x1..$x2);
+		my @yr=$y1>$y2?($y2..$y1):($y1..$y2);
+		foreach my $y(@yr){
+			foreach my $x(@xr){
+				 $self->{grid}->[$y]->[$x]='⠀';
+			}
+		}
+	}
 }
+
+
 
 # Pixel plotting primitives for shapes using Bresenham (Algorithm::Line::Bresenham)
 
 =head3 C<$canvas-E<gt>line($x1,$y1,$x2,$y2,$value)>  
 
 Uses Algorithm::Line::Bresenham to draw a line from C<$x1,$y1> to C<$x2,$y2>.
-The optional value C<$value> sets or unsets the pixels
+The optional value C<$value> sets or unsets the pixels. If C<$value> is a 
+valid colour (see below) the line will be drawn with that colour.
 
 =cut
 
@@ -201,7 +221,8 @@ sub line{
 
 Uses Algorithm::Line::Bresenham to draw a circle centered at C<$x1,$y1>
 with radius C<$radius> to C<$x2,$y2>.
-The optional value C<$value> sets or unsets the pixels
+The optional value C<$value> sets or unsets the pixels. If C<$value> is a 
+valid colour (see below) the line will be drawn with that colour.
 
 =cut
 
@@ -217,7 +238,8 @@ sub circle{
 
 Uses Algorithm::Line::Bresenham to draw a rectangular ellipse,  (an 
 ellipse bounded by a rectangle defined by C<$x1,$y1,$x2,$y2>).
-The optional value C<$value> sets or unsets the pixels
+The optional value C<$value> sets or unsets the pixels. If C<$value> is a 
+valid colour (see below) the line will be drawn with that colour.
 
 =cut
 
@@ -232,7 +254,8 @@ sub ellipse_rect{
 
 Uses Algorithm::Line::Bresenham to draw a quadratic bezier, defined by
 end points C<$x1,$y1,$x3,$y3>) and control point C<$x2,$y2>.
-The optional value C<$value> sets or unsets the pixels
+The optional value C<$value> sets or unsets the pixels. If C<$value> is a 
+valid colour (see below) the line will be drawn with that colour.
 
 =cut
 
@@ -248,7 +271,8 @@ sub quad_bezier{
 
 Uses Algorithm::Line::Bresenham to draw a poly line, form a
 sequences of points.
-The optional value C<$value> sets or unsets the pixels
+The optional value C<$value> sets or unsets the pixels. If C<$value> is a 
+valid colour (see below) the line will be drawn with that colour.
 
 =cut
 
@@ -256,14 +280,14 @@ The optional value C<$value> sets or unsets the pixels
 sub polyline{
     my $self=shift;
     my @vertices=@_;
-    my $value= pop @vertices unless (@vertices & 1);
+    my $value= pop @vertices if (scalar @vertices & 1);
     $value//=1;
     my @points=Algorithm::Line::Bresenham::polyline(@vertices);
 	$self->set(@$_,$value) foreach (@points);
 }
 
 sub degToRad{
-	return 3.14159267*$_[0]/180 ;
+	return $_[0]?3.14159267*$_[0]/180:0; ;
 }
 
 =head2 Character Level Functions;
@@ -328,7 +352,7 @@ printing using a Graille font.
 
 =cut
 
-sub blockBlit{
+sub blockBlit{  # needs protection
 	my ($self, $blk, $gridX, $gridY)=@_;
 	for my $x(0..$#{$blk->[0]}){
 		for my $y(0..$#$blk){
@@ -338,10 +362,13 @@ sub blockBlit{
 }
 
 
-=head3 C<$canvas-E<gt>exportCanvas($filename)> , C<$canvas-E<gt>importCanvas($filename)>
+=head3 C<$canvas-E<gt>exportCanvas($filename)> , C<$canvas-E<gt>importCanvas($filename,[$toBuffer])>
 
 This allows the loading and unloading of a canvas from a file.  There is
-no checking of the dimension of the canvas being imported at the moment
+no checking of the dimension of the canvas being imported at the moment.
+Import can be direct to the canvas, the function return the loaded data
+as an ArrayRef, the optional c<$toBuffer> parameter, if true prevents 
+loading the data onto the canvas.
 
 =cut
 
@@ -356,16 +383,72 @@ sub exportCanvas{
 }
 
 sub importCanvas{
-	my ($self,$file)=@_;
+	my ($self,$file,$toBuffer)=@_;
 	open (my $fh,'<', $file) or die "can not open $file for reading $!";
 	my @grd;
 	while (<$fh>){
-		last if (@grd > ($self->{height}/4));
+		last if (@grd > ($self->{height}/4)); # stop if too big for canvas
+		#  extend if too narrow for canvas, trucate if too wide
 		unshift @grd, [split(//,substr($_.('⠀')x($self->{width}/2),0,$self->{width}/2))];
 	}
 	close $fh; 
-	$self->{grid}=[@grd];
+	$self->{grid}=[@grd] unless $toBuffer;
+	return [@grd];
 }
+
+=head3 C<$canvas-E<gt>textAt($x,$y,$text,$fmt)> 
+
+Printing text on the C<$canvas>.  This is different fromthe exported 
+C<printAt()> function.  the characters are printed on the C<$canvas>
+and may be scrolled with the canvas and will overwrite or be over written
+othe $canvas drawing actions.  The optional C<$fmt> allows the setting of colour; 
+
+=cut
+
+
+sub textAt{
+	my ($self,$x,$y,$text,$fmt)=@_;
+	my ($chrX,$chrY,$xOffset,$yOffset)=charOffset($self,$x,$y);
+	if ($chrX!=-1){
+		my @chrs=split(//,$text);
+		my $lastChar=$chrX+(length $text)-1;
+		$lastChar = $self->{width}/2 if ($lastChar>$self->{width}/2);
+		$chrs[0]=colour($fmt).$chrs[0] if $fmt;
+		for my $tc ($chrX..$lastChar){
+		   $self->{grid}->[$chrY]->[$tc]=shift @chrs;
+	   }
+
+	}
+}
+
+sub resetUnpainted{
+	my ($self,$chX,$chY)=@_;
+	return if (($chX>$self->{width}/2)||($chX<0)||($chY>$self->{height}/4)||($chY<0));
+	$self->{grid}->[$chY]->[$chX]=colour("reset").$self->{grid}->[$chY]->[$chX] if (length  $self->{grid}->[$chY]->[$chX] ==1);
+}
+
+sub stripColour{
+	my $ch=shift;
+	return chop $ch;
+}
+
+sub axis{
+	my ($self,$xOrigin,$yOrigin,$xPos,$xNeg,$yPos,$yNeg,$xTics,$yTics)=@_;	         
+	for my $y ($yOrigin-$yNeg..$yOrigin+$yPos) {     
+			 $self->textAt($xOrigin,$y,'│');
+	}
+	$self->textAt($xOrigin-$xNeg,$yOrigin,'─' x (($xNeg+$xPos)/2));
+	$self->textAt($xOrigin,$yOrigin,'┼' );
+
+}
+
+
+sub axis2{
+	my ($self,$xOrigin,$yOrigin,$xPos,$xNeg,$yPos,$yNeg,$xTics,$yTics)=@_;
+	$self->line($xOrigin-$xNeg,$yOrigin,$xOrigin+$xPos,$yOrigin);	         
+	$self->line($xOrigin,$yOrigin-$yNeg,$xOrigin,$yOrigin+$yPos);
+}
+
 
 =head2  Enhancements
  
@@ -395,31 +478,35 @@ sub logo{
 	my ($self,$script)=@_;
 	my @commands= map{s/^\s+|\s+$//g; $_}split(/[\n;]+/,$script);
 	foreach my $instr (@commands){
+		next unless $instr;
 		next if ($instr=~/#/);
 		my ($c,$p)=split(/[\s]+/,$instr,2);
 		my @pars=split(/,/,$p) if $p;
 		for ($c){
-		/^fd/  && do{
+		/^(fd|forward)/  && do{
+			last unless ($pars[0] && (0+$pars[0]));
 			my $x=$self->{logoVars}->{x}+$pars[0]*cos(degToRad($self->{logoVars}->{d}));
 			my $y=$self->{logoVars}->{y}+$pars[0]*sin(degToRad($self->{logoVars}->{d}));
 			if ($self->{logoVars}->{p}){
-				$self->line($self->{logoVars}->{x},$self->{logoVars}->{y},$x,$y)
+				$self->line($self->{logoVars}->{x},$self->{logoVars}->{y},$x,$y,($self->{logoVars}->{c}//1))
 				}
 			$self->{logoVars}->{y}=$y;
 			$self->{logoVars}->{x}=$x;
 			last;
 		};
-		/^lt/  && do{
+		/^(lt|left)/  && do{
+			last unless ($pars[0] && (0+$pars[0]));
 			$self->{logoVars}->{d}+=$pars[0];
 			$self->{logoVars}->{d}-=360 while($self->{logoVars}->{d}>360);
 			last;
 		};
-		/^rt/  && do{
+		/^(rt|right)/  && do{
+			last unless ($pars[0] && (0+$pars[0]));
 			$self->{logoVars}->{d}-=$pars[0];
 			$self->{logoVars}->{d}+=360 while($self->{logoVars}->{d}<360);
 			last;
 		};
-		/^bk/  && do{
+		/^(bk|back)/  && do{
 			$pars[0]=-$pars[0];
 			$_="fd";
 			redo;
@@ -430,6 +517,10 @@ sub logo{
 		};
 		/^pd/  && do{
 			$self->{logoVars}->{p}=1;
+			last;
+		};
+		/^pc/  && do{
+			$self->{logoVars}->{c}=colour($pars[0]);
 			last;
 		};
 		/^dir/  && do{
@@ -504,11 +595,11 @@ find the pixel value at a certain coordinate in that block.
 
 
 our %borders=(
-  simple=>{tl=>"+", t=>"-", tr=>"+", l=>"|", r=>"|", bl=>"+", b=>"-", br=>"+",},
-  double=>{tl=>"╔", t=>"═", tr=>"╗", l=>"║", r=>"║", bl=>"╚", b=>"═", br=>"╝",},
-  shadow=>{tl=>"┌", t=>"─", tr=>"╖", l=>"│", r=>"║", bl=>"╘", b=>"═", br=>"╝",},
-  thin  =>{tl=>"┌", t=>"─", tr=>"┐", l=>"│", r=>"│", bl=>"└", b=>"─", br=>"┘",},  
-  thick =>{tl=>"┏", t=>"━", tr=>"┓", l=>"┃", r=>"┃", bl=>"┗", b=>"━", br=>"┛",}, 
+  simple=>{tl=>"+", t=>"-", tr=>"+", l=>"|", r=>"|", bl=>"+", b=>"-", br=>"+",ts=>"|",te=>"|",},
+  double=>{tl=>"╔", t=>"═", tr=>"╗", l=>"║", r=>"║", bl=>"╚", b=>"═", br=>"╝",ts=>"╣",te=>"╠",},
+  shadow=>{tl=>"┌", t=>"─", tr=>"╖", l=>"│", r=>"║", bl=>"╘", b=>"═", br=>"╝",ts=>"┨",te=>"┠",},
+  thin  =>{tl=>"┌", t=>"─", tr=>"┐", l=>"│", r=>"│", bl=>"└", b=>"─", br=>"┘",ts=>"┤",te=>"├",},  
+  thick =>{tl=>"┏", t=>"━", tr=>"┓", l=>"┃", r=>"┃", bl=>"┗", b=>"━", br=>"┛",ts=>"┫",te=>"┣",}, 
 );
 
 our %colours=(black   =>30,red   =>31,green   =>32,yellow   =>33,blue   =>34,magenta   =>35,cyan  =>36,white   =>37,
@@ -521,17 +612,22 @@ sub printAt{
   $blit.= "\033[".$row++.";".$column."H".(ref $_?join("",@$_):$_) foreach (@textRows) ;
   print $blit;
   print "\n"; # seems to flush the STDOUT buffer...if not then set $| to 1 
-
 };
 
 sub border{
-	my ($top,$left,$bottom,$right,$style,$colour)=@_;
+	my ($top,$left,$bottom,$right,$style,$colour,$title,$titleColour)=@_;
 	$style//="simple";
 	return unless exists $borders{$style};
 	my @box=(colour($colour).$borders{$style}{tl}.($borders{$style}{t}x($right-$left)).$borders{$style}{tr});
+	if ($title){
+		my $titleSize=4+length $title;
+		$title=$borders{$style}{ts}.colour($titleColour||"reset")." ".$title.colour($colour)." ".$borders{$style}{te};
+		substr ($box[0],7,$titleSize)=$title;    
+	};
 	push @box,($borders{$style}{l}.(" "x($right-$left)).$borders{$style}{r})x($bottom-$top);;
 	push @box,($borders{$style}{bl}.($borders{$style}{b}x($right-$left)).$borders{$style}{br}.colour("reset"));
 	printAt($top,$left,\@box);
+	
 }
 
 sub paint{
@@ -587,20 +683,6 @@ sub pixelAt{
 	my ($blk,$px,$py)=@_;
 	return (($blk->[$py]->[$px/8]) & 2**(7-($px%8)));
 }
-
-#loads a hashfile representing a 2D Array ref blocks of data
-#can be used to load fonts
-sub loadGrf{
-	my $file=shift;
-	open my $grf,"<:utf8",$file  or 
-	      die "Unable to open file $file $!;\n" ;
-	my $data="";
-	$data.=$_ while(<$grf>);
-	close $grf;
-	my $g=eval($data) or die "unable to load external data from $file $!";;
-	return  $g;
-}
-
 
 
 1;

@@ -3,8 +3,10 @@ use strict; use warnings;
 use lib "../lib/";
 use utf8;
 use open ":std", ":encoding(UTF-8)";
-use Term::Graille  qw/colour paint printAt clearScreen border loadGrf/;
+use Term::Graille  qw/colour paint printAt clearScreen border/;
+use Term::Graille::Font  qw/convertDG saveGrf loadGrf fontWrite/;
 use Time::HiRes qw/sleep/;
+
 
 my $canvas = Term::Graille->new(
     width  => 120,
@@ -14,23 +16,32 @@ my $canvas = Term::Graille->new(
     borderStyle => "double",
   );
 
+my @fontNames=("Area51","Cinema Bold","Mutual","Everest","ZX Times");
+my @fonts = map {my $f=loadGrf("./fonts/$_.grf");$f} @fontNames;
+my @texts = map {" $_->{info} 8x8 Fonts imported from https://damieng.com/typography/zx-origins/ "} @fonts;
 
-my $fontName="Cinema Bold";
-my $brlF = loadGrf("./fonts/$fontName.grf");
+my @pointers=(0) x scalar @fontNames;
 
-my $scrollText=" Term::Graille Scrolling Text Demo  ".$fontName."   ".
-       join ("", sort keys %$brlF);
+fontWrite($canvas,$fonts[0],10,8,"Font Demo");
+$canvas->textAt(30,25,"Mixed text is also possible");
+$canvas->textAt(30,22,"printable directly on canvas");
 
-my $x=0;
-for (0..length $scrollText){
-  $canvas->blockBlit($brlF->{substr($scrollText,$x++,1)},55,12);
-   for (0..3){
-	   $canvas->scroll("l");
-	   sleep .05;
-	   $canvas->draw();
+$canvas->draw();
+sleep 5;
+
+for (0..100){
+  for my $fn (0..$#fontNames){
+	 fontWrite($canvas,$fonts[$fn],55,1+$fn*3,substr($texts[$fn],$pointers[$fn]++,1));
+	  $pointers[$fn]=0 if ($pointers[$fn]>=length $texts[$fn]); 
+  }
+  
+	   for (0..3){
+		   $canvas->scroll("l");
+		   sleep .05;
+		   $canvas->draw();
+	   }
+	   
    }
-   
-   $x=0 if ($x>=length $scrollText); 
-}
+	
 
 
