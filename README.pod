@@ -22,7 +22,7 @@ scrolling, border setting, and more in development.
 
 =begin html
 
-<img src="https://user-images.githubusercontent.com/34284663/177032294-55dfda02-c24d-45c8-92ab-8c07ad39df66.gif">
+<img src="https://user-images.githubusercontent.com/34284663/180637940-01b583a0-1a71-4a5d-a29b-394a940ce46f.gif">
 
 =end html
 
@@ -94,7 +94,8 @@ Re-initialises the canvas with blank braille characters
 =head3 C<$canvas-E<gt>line($x1,$y1,$x2,$y2,$value)>  
 
 Uses Algorithm::Line::Bresenham to draw a line from C<$x1,$y1> to C<$x2,$y2>.
-The optional value C<$value> sets or unsets the pixels
+The optional value C<$value> sets or unsets the pixels. If C<$value> is a 
+valid colour (see below) the line will be drawn with that colour.
 
 
 =cut
@@ -103,7 +104,8 @@ The optional value C<$value> sets or unsets the pixels
 
 Uses Algorithm::Line::Bresenham to draw a circle centered at C<$x1,$y1>
 with radius C<$radius> to C<$x2,$y2>.
-The optional value C<$value> sets or unsets the pixels
+The optional value C<$value> sets or unsets the pixels. If C<$value> is a 
+valid colour (see below) the line will be drawn with that colour.
 
 
 =cut
@@ -112,7 +114,8 @@ The optional value C<$value> sets or unsets the pixels
 
 Uses Algorithm::Line::Bresenham to draw a rectangular ellipse,  (an 
 ellipse bounded by a rectangle defined by C<$x1,$y1,$x2,$y2>).
-The optional value C<$value> sets or unsets the pixels
+The optional value C<$value> sets or unsets the pixels. If C<$value> is a 
+valid colour (see below) the line will be drawn with that colour.
 
 
 =cut
@@ -121,7 +124,8 @@ The optional value C<$value> sets or unsets the pixels
 
 Uses Algorithm::Line::Bresenham to draw a quadratic bezier, defined by
 end points C<$x1,$y1,$x3,$y3>) and control point C<$x2,$y2>.
-The optional value C<$value> sets or unsets the pixels
+The optional value C<$value> sets or unsets the pixels. If C<$value> is a 
+valid colour (see below) the line will be drawn with that colour.
 
 
 =cut
@@ -130,7 +134,8 @@ The optional value C<$value> sets or unsets the pixels
 
 Uses Algorithm::Line::Bresenham to draw a poly line, form a
 sequences of points.
-The optional value C<$value> sets or unsets the pixels
+The optional value C<$value> sets or unsets the pixels. If C<$value> is a 
+valid colour (see below) the line will be drawn with that colour.
 
 
 =cut
@@ -156,10 +161,23 @@ printing using a Graille font.
 
 =cut
 
-=head3 C<$canvas-E<gt>exportCanvas($filename)> , C<$canvas-E<gt>importCanvas($filename)>
+=head3 C<$canvas-E<gt>exportCanvas($filename)> , C<$canvas-E<gt>importCanvas($filename,[$toBuffer])>
 
 This allows the loading and unloading of a canvas from a file.  There is
-no checking of the dimension of the canvas being imported at the moment
+no checking of the dimension of the canvas being imported at the moment.
+Import can be direct to the canvas, the function return the loaded data
+as an ArrayRef, the optional c<$toBuffer> parameter, if true prevents 
+loading the data onto the canvas.
+
+
+=cut
+
+=head3 C<$canvas-E<gt>textAt($x,$y,$text,$fmt)> 
+
+Printing text on the C<$canvas>.  This is different fromthe exported 
+C<printAt()> function.  the characters are printed on the C<$canvas>
+and may be scrolled with the canvas and will overwrite or be over written
+othe $canvas drawing actions.  The optional C<$fmt> allows the setting of colour; 
 
 
 =cut
