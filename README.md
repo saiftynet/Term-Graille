@@ -42,4 +42,9 @@ In the initial demo above a Turtle script was used to produce a drawing of text.
 
 ![fonts](https://user-images.githubusercontent.com/34284663/179078012-69f9f535-8d41-46b0-ba68-0a5dbe613cd9.gif)
 
+## Variable thickness Lines
+
+In version 0.08 and requires Algorithm::Line::Bresenham v0.15
+![Screenshot from 2022-08-02 18-32-01](https://user-images.githubusercontent.com/34284663/182438208-793f8c7a-6861-4f2c-b414-86c66ceb92b9.png)
+
 
