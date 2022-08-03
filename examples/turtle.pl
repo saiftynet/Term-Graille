@@ -23,7 +23,7 @@ $canvas->clear();
 $canvas->logo("ce;dir 0;");
 $canvas->logo($_) foreach (@commands);
 
-printAt (5,70,[@commands[$start..$end]])
+printAt (5,70,[@commands])
 }
 
 

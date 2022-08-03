@@ -1,6 +1,5 @@
 #! /usr/bin/env perl
 use strict; use warnings;
-use lib "../lib/";
 use Term::Graille qw/colour paint printAt clearScreen border/;
 use Image::Magick;
 

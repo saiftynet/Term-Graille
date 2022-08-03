@@ -48,6 +48,6 @@
          "web" : "https://github.com/saiftynet/Term-Graille"
       }
    },
-   "version" : "0.07",
+   "version" : "0.08",
    "x_serialization_backend" : "JSON::PP version 4.02"
 }

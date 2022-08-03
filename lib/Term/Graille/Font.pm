@@ -1,4 +1,3 @@
-#! /usr/bin/env perl
 package Term::Graille::Font;
 use strict; use warnings;
 use utf8;
@@ -7,6 +6,9 @@ use Term::Graille  qw/block2braille/;
 use base 'Exporter';
 our @EXPORT_OK = qw/convertDG saveGrf loadGrf fontWrite/;
 use open ":std", ":encoding(UTF-8)";
+
+our $VERSION="0.08";
+
 
 =head1 NAME
 
@@ -81,7 +83,8 @@ be read using loadGrf
 
 sub saveGrf{
    my ($grf,$file)=@_;
-   my $output=Dumper([$grf])=~ s/\\x\{([0-9a-f]{2,})\}/chr hex $1/ger;
+   my $output=Dumper([$grf]);
+   $output=~ s/\\x\{([0-9a-f]{2,})\}/chr hex $1/ge;
    $output=~s/^\$VAR1 = \[\n\s+|        \];\n?$//g;
    $output=~s/\[\n\s+\[/\[\[/g;
    $output=~s/\n\s+([^\s])/$1/g;

@@ -1,7 +1,7 @@
 #! /usr/bin/env perl
 use strict; use warnings;
-use lib "../lib/";
 use utf8;
+
 use open ":std", ":encoding(UTF-8)";
 use Term::Graille  qw/colour paint printAt clearScreen border/;
 use Term::Graille::Font  qw/convertDG saveGrf loadGrf fontWrite/;
@@ -27,7 +27,7 @@ $canvas->textAt(30,25,"Mixed text is also possible");
 $canvas->textAt(30,22,"printable directly on canvas");
 
 $canvas->draw();
-sleep 5;
+sleep 2;
 
 for (0..100){
   for my $fn (0..$#fontNames){

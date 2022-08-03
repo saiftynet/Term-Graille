@@ -1,4 +1,3 @@
-CHANGELOG
 examples/animations/cheetah/cheetah1.png
 examples/animations/cheetah/cheetah2.png
 examples/animations/cheetah/cheetah3.png
@@ -20,30 +19,34 @@ examples/animations/chimp/chimp9.png
 examples/animations/dragon.png
 examples/demo.pl
 examples/fontDemo.pl
+'examples/fonts/Anvil Alternate.grf'
 'examples/fonts/Area51 Overwide.grf'
 'examples/fonts/Area51 Serif Bold.grf'
 examples/fonts/Area51.grf
 examples/fonts/asm2grf.pl
 'examples/fonts/Cinema Bold.grf'
+examples/fonts/Computer.grf
 examples/fonts/Coolant.grf
 'examples/fonts/Everest Bold.grf'
 'examples/fonts/Everest Condensed SemiBold.grf'
 'examples/fonts/Everest Condensed.grf'
 examples/fonts/Everest.grf
-examples/fonts/font2grf.pl
 examples/fonts/Mutual.grf
+'examples/fonts/Reflections Dark.grf'
+examples/fonts/Reflections.grf
 'examples/fonts/Tentacle Bold.grf'
 examples/fonts/Tentacle.grf
 'examples/fonts/ZX Times.grf'
+'examples/fonts/ZX Venice.grf'
 examples/image2grl.pl
+examples/lineDemo.pl
 examples/perl2.grl
 examples/perl2.jpg
-examples/surmaphoto.png
 examples/testanimate.pl
 examples/turtle.pl
 lib/Term/Graille.pm
+lib/Term/Graille/Chart.pm
 lib/Term/Graille/Font.pm
 Makefile.PL
 MANIFEST			This list of files
 t/1.t
-Term-Graille-0.06.tar.gz

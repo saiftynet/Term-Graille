@@ -34,14 +34,20 @@ scrolling, border setting, and more in development.
 package Term::Graille;
 
 use strict;use warnings;
-our $VERSION="0.07";
+our $VERSION="0.08";
 use utf8;
 use open ":std", ":encoding(UTF-8)";
 use base 'Exporter';
 our @EXPORT_OK = qw/colour paint printAt clearScreen border blockBlit block2braille pixelAt/;
-use Algorithm::Line::Bresenham 0.13;
+use Algorithm::Line::Bresenham 0.15;
 use Time::HiRes "sleep";
 
+BEGIN {
+  if ($^O eq "MSWin32") {
+	  system("chcp 65001 >nul");
+	  system("echo 'Please set console font to one that can handle utf8 fonts'")
+  }
+}
 
 =head3 C<my $canvas=Term::Graille-E<gt>new(%params)>
 
@@ -117,6 +123,13 @@ sub as_string{
 Sets a particular pixel on (default if C<$pixelValue> not sent) or off.
 
 =cut
+
+sub BresenhamPlot{
+	my($x,$y,$args)=@_;
+	my ($canvas,$value)=(@$args);
+	set($canvas,$x,$y,$value);
+}
+
 sub set{
 	use integer;
     push @_, 1 if @_ == 3;
@@ -212,8 +225,8 @@ valid colour (see below) the line will be drawn with that colour.
 sub line{
     push @_, 1 if @_ == 5;    # final optional parameter is set to one if not given
 	my ($self,$x1,$y1,$x2,$y2,$value)=@_;
-	my @points=Algorithm::Line::Bresenham::line($x1,$y1,$x2,$y2);
-	$self->set(@$_,$value) foreach (@points);
+	my $setRef=\&Term::Graille::BresenhamPlot;
+	my @points=Algorithm::Line::Bresenham::line($x1,$y1,$x2,$y2,$setRef,[$self,$value]);
 }
 
 
@@ -266,6 +279,49 @@ sub quad_bezier{
 	my @points=Algorithm::Line::Bresenham::quad_bezier($x1,$y1,$x2,$y2,$x3,$y3);
 	$self->set(@$_,$value) foreach (@points);
 }
+
+
+=head3 C<$canvas-E<gt>thick_line($x1,$y1,$x2,$y2,$thickness,$value)>    
+
+Uses Algorithm::Line::Bresenham to draw a thick line, defined by
+end points C<$x1,$y1,$x2,$y2>) and thickness C<$thickness>.
+The optional value C<$value> sets or unsets the pixels. If C<$value> is a 
+valid colour (see below) the line will be drawn with that colour.
+
+=cut
+
+
+sub thick_line{
+    push @_, 1 if @_ == 6;	
+	my ($self,$x0,$y0,$x1,$y1,$thickness,$value)=@_;
+	my @points=Algorithm::Line::Bresenham::thick_line($x0,$y0,$x1,$y1,$thickness);
+	$self->set(@$_,$value) foreach (@points);
+} 
+
+
+=head3 C<$canvas-E<gt>varthick_line($x0,$y0,$x1,$y1,
+       $left,$argL,
+       $right,$argR, $value)=@_;
+       
+Uses Algorithm::Line::Bresenham to draw a variable thickness, defined by
+end points C<$x0,$y0,$x1,$y1>) and thickness defined by two user defined
+functions, each function taking as arguments C<argE<lt>L|RE<gt>, $pos, $len>
+and returning thickness of the left and right sides
+of the line. The optional value C<$value> sets or unsets the pixels.
+If C<$value> is a valid colour (see below) the line will be drawn with that colour.
+
+=cut
+
+
+sub varthick_line{
+    push @_, 1 if @_ == 9;	
+	my ($self,$x0,$y0,$x1,$y1,$left,$argL,$right,$argR,$value)=@_;
+	my @points=Algorithm::Line::Bresenham::varthick_line($x0,$y0,$x1,$y1,$left,$argL,$right,$argR);
+	$self->set(@$_,$value) foreach (@points);
+	
+}
+
+
 
 =head3 C<$canvas-E<gt>polyline($x1,$y1,....,$xn,$yn,$value)>    
 
@@ -684,6 +740,12 @@ sub pixelAt{
 	return (($blk->[$py]->[$px/8]) & 2**(7-($px%8)));
 }
 
+
+sub DESTROY{
+  if ($^O eq "MSWin32") {
+	 system("chcp 850");
+  }
+}
 
 1;
 __END__

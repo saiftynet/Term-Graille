@@ -1,6 +1,5 @@
 #! /usr/bin/env perl
 use strict; use warnings;
-use lib "../lib/";
  use Term::Graille  qw/colour paint printAt clearScreen border/;
  use Term::Graille::Font  qw/loadGrf fontWrite/;
  use Time::HiRes "sleep";
@@ -15,8 +14,6 @@ use lib "../lib/";
 clearScreen();  
 
 my $grf=loadGrf("./fonts/ZX Times.grf");
-sleep 20;
-
 logo();
 turtle();
 cube();
@@ -44,6 +41,7 @@ sub logo{
 
    fontWrite($canvas,$grf,4,5,"GRAILLE");
    $canvas->textAt(18,14,"Testing version $Term::Graille::VERSION","green italic");
+   $canvas->textAt(18,10,"with Bresenham $Algorithm::Line::Bresenham::VERSION","green italic");
    $canvas->ellipse_rect(20,63, 52,55,"red");
    $canvas->quad_bezier(20,59,22,40,35,40);
    $canvas->quad_bezier(37,40,50,40,52,59);
