@@ -44,7 +44,8 @@ In the initial demo above a Turtle script was used to produce a drawing of text.
 
 ## Variable thickness Lines
 
-In version 0.08 and requires Algorithm::Line::Bresenham v0.15
+
+[Herbert Breuning](https://metacpan.org/author/LICHTKIND) had made this suggestion.  There are many examples of thick line algorithms on the net.  [Alan Murphy](http://homepages.enterprise.net/murphy/thickline/index.html) gives the classic version, which has been [improved](http://kt8216.unixcab.org/murphy/index.html) and it is this code that has been ported to Perl and used in Algorth::Line::Bresenham v0.151.  INtegrating these into Graille was in v0.08.
 
 ![Screenshot from 2022-08-02 18-32-01](https://user-images.githubusercontent.com/34284663/182438208-793f8c7a-6861-4f2c-b414-86c66ceb92b9.png)
 
