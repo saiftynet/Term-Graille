@@ -9,6 +9,7 @@ Term::Graille - Graphical Display in the terminal using UTF8 Braille characters
 
 0.08
 - minor bug fixes
+- Variable thickness lines added (requires Algorithm::Line::Bresenham 0.151)
 
 0.07
 - Adds textAt () function allowing heterogenous content on the canvas
