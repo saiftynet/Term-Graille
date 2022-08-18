@@ -1,6 +1,15 @@
 CHANGELOG
 Term::Graille - Graphical Display in the terminal using UTF8 Braille characters
 
+0.09
+-starting Charting module
+-Term::Graille::IO user interaction module
+-Term::Graille::Menu  A modal drop down menu for user interaction
+-prototype sprite editor started
+
+0.08
+- minor bug fixes
+
 0.07
 - Adds textAt () function allowing heterogenous content on the canvas
 - Adds colour to pixel and text and turtle graphics on the $canvas
