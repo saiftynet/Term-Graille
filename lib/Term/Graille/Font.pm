@@ -7,7 +7,7 @@ use base 'Exporter';
 our @EXPORT_OK = qw/convertDG saveGrf loadGrf fontWrite/;
 use open ":std", ":encoding(UTF-8)";
 
-our $VERSION="0.08";
+our $VERSION="0.09";
 
 
 =head1 NAME

@@ -4,7 +4,7 @@ use utf8;
 use Term::Graille  qw/colour paint printAt clearScreen border blockBlit block2braille pixelAt/;
 use open ":std", ":encoding(UTF-8)";
 
-our $VERSION="0.08";
+our $VERSION="0.09";
 
 my $chart=new Term::Graille::Chart(
      hOffset=>10,

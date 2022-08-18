@@ -34,11 +34,11 @@ scrolling, border setting, and more in development.
 package Term::Graille;
 
 use strict;use warnings;
-our $VERSION="0.08";
+our $VERSION="0.09";
 use utf8;
 use open ":std", ":encoding(UTF-8)";
 use base 'Exporter';
-our @EXPORT_OK = qw/colour paint printAt clearScreen border blockBlit block2braille pixelAt/;
+our @EXPORT_OK = qw/colour paint printAt clearScreen border blockBlit block2braille pixelAt cursorAt/;
 use Algorithm::Line::Bresenham 0.15;
 use Time::HiRes "sleep";
 
@@ -76,7 +76,10 @@ sub new{
     $self->{logoVars}={x=>$self->{width}/2,  # integrated Turtle Graphics
 		               y=>$self->{height}/2, # initial variables x, y and direction
 		               d=>0,                 
-		               p=>1};
+		               p=>1,
+		               GV=>{},
+		               PC=>0,
+		               Stk=>[],};
     bless $self,$class;
     $self->clear; # initiallises canvas to blank
     return $self;
@@ -124,7 +127,8 @@ Sets a particular pixel on (default if C<$pixelValue> not sent) or off.
 
 =cut
 
-sub BresenhamPlot{
+ # this function creates a callback for plotting pixels directly
+sub BresenhamPlot{   
 	my($x,$y,$args)=@_;
 	my ($canvas,$value)=(@$args);
 	set($canvas,$x,$y,$value);
@@ -144,10 +148,10 @@ sub set{
 	elsif ($value=~/^\033\[/){$self->{grid}->[$chrY]->[$chrX]=$value;}
 	# ensure character is a braille character to start with
 	$bChr='⠀' if (ord($bChr)&0x2800 !=0x2800); 
-	
+
 	$self->{grid}->[$chrY]->[$chrX].=$value?         # if $value is false, unset, or else set pixel
 	   (chr( ord($self->{setPix}  -> [$xOffset]->[$yOffset]) | ord($bChr) ) ):
-	   (chr( ord($self->{unsetPix}-> [$xOffset]->[$yOffset]) & ord($bChr)));
+	   (chr( ord($self->{unsetPix}-> [$xOffset]->[$yOffset]) & ord($bChr)));	
 }
 
 =head3 C<$canvas-E<gt>unset($x,$y)>  
@@ -164,7 +168,7 @@ sub charOffset{  # gets the character grid position and offset within that chara
 	             # give the pixel position
 	use integer;
 	my ($self,$x,$y)=@_;	
-	return -1 unless(($x<$self->{width})&&($x>=0)&&($y<$self->{height})&&($x>=0));
+	return -1 unless(($x<$self->{width})&&($x>=0)&&($y<$self->{height})&&($y>=0));
 	my $chrX=$x/2;my $xOffset=$x- $chrX*2; 
 	my $chrY=$y/4;my $yOffset=$y- $chrY*4;
 	return ($chrX,$chrY,$xOffset,$yOffset);
@@ -665,10 +669,17 @@ sub printAt{
   my ($row,$column,@textRows)=@_;
   @textRows = @{$textRows[0]} if ref $textRows[0];  
   my $blit="\033[?25l";
-  $blit.= "\033[".$row++.";".$column."H".(ref $_?join("",@$_):$_) foreach (@textRows) ;
+  $blit.= defined $_?("\033[".$row++.";".$column."H".(ref $_?join("",@$_):$_)):"" foreach (@textRows) ;
   print $blit;
   print "\n"; # seems to flush the STDOUT buffer...if not then set $| to 1 
 };
+
+sub cursorAt{
+	my ($r,$c)=@_;
+	return "\033[?25l\033[".$r.";".$c."H";
+	
+}
+
 
 sub border{
 	my ($top,$left,$bottom,$right,$style,$colour,$title,$titleColour)=@_;
@@ -678,7 +689,7 @@ sub border{
 	if ($title){
 		my $titleSize=4+length $title;
 		$title=$borders{$style}{ts}.colour($titleColour||"reset")." ".$title.colour($colour)." ".$borders{$style}{te};
-		substr ($box[0],7,$titleSize)=$title;    
+		substr ($box[0],3,$titleSize)=$title;    
 	};
 	push @box,($borders{$style}{l}.(" "x($right-$left)).$borders{$style}{r})x($bottom-$top);;
 	push @box,($borders{$style}{bl}.($borders{$style}{b}x($right-$left)).$borders{$style}{br}.colour("reset"));

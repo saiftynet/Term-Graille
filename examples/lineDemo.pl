@@ -3,8 +3,6 @@ use strict; use warnings;
 use utf8;
 use open ":std", ":encoding(UTF-8)";
 use Term::Graille  qw/colour paint printAt clearScreen border/;
-use Term::Graille::Font  qw/convertDG saveGrf loadGrf fontWrite/;
-use Time::HiRes qw/sleep/;
 
 my $canvas = Term::Graille->new(
     width  => 120,

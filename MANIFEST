@@ -1,3 +1,4 @@
+CHANGELOG
 examples/animations/cheetah/cheetah1.png
 examples/animations/cheetah/cheetah2.png
 examples/animations/cheetah/cheetah3.png
@@ -6,18 +7,9 @@ examples/animations/cheetah/cheetah5.png
 examples/animations/cheetah/cheetah6.png
 examples/animations/cheetah/cheetah7.png
 examples/animations/cheetah/cheetah8.png
-examples/animations/chimp/chimp1.png
-examples/animations/chimp/chimp10.png
-examples/animations/chimp/chimp2.png
-examples/animations/chimp/chimp3.png
-examples/animations/chimp/chimp4.png
-examples/animations/chimp/chimp5.png
-examples/animations/chimp/chimp6.png
-examples/animations/chimp/chimp7.png
-examples/animations/chimp/chimp8.png
-examples/animations/chimp/chimp9.png
 examples/animations/dragon.png
 examples/demo.pl
+examples/empty.spr
 examples/fontDemo.pl
 'examples/fonts/Anvil Alternate.grf'
 'examples/fonts/Area51 Overwide.grf'
@@ -38,15 +30,21 @@ examples/fonts/Reflections.grf
 examples/fonts/Tentacle.grf
 'examples/fonts/ZX Times.grf'
 'examples/fonts/ZX Venice.grf'
+examples/help.spr
 examples/image2grl.pl
 examples/lineDemo.pl
+examples/menu.pl
 examples/perl2.grl
 examples/perl2.jpg
+examples/spriteEditor.pl
 examples/testanimate.pl
 examples/turtle.pl
 lib/Term/Graille.pm
 lib/Term/Graille/Chart.pm
 lib/Term/Graille/Font.pm
+lib/Term/Graille/IO.pm
+lib/Term/Graille/Menu.pm
+lib/Term/Graille/Sprite.pm
 Makefile.PL
 MANIFEST			This list of files
 t/1.t

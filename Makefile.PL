@@ -11,8 +11,11 @@ WriteMakefile(
   PREREQ_PM        => {
     'strict'   => 0,
     'warnings' => 0,
-    'Algorithm::Line::Bresenham' =>'0.13',
+    'Algorithm::Line::Bresenham' =>'0.151',
     'Time::HiRes' => 0,
+    'Storable'    =>0,
+    'Term::ReadKey'=>0,
+    'Data::Dumper' =>0,
   },
   (eval { ExtUtils::MakeMaker->VERSION(6.46) } ? (META_MERGE => {
       'meta-spec' => { version => 2 },

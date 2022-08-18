@@ -19,7 +19,7 @@
 #     META_MERGE => { meta-spec=>{ version=>q[2] }, resources=>{ repository=>{ type=>q[git], url=>q[https://github.com/saiftynet/Term-Graille.git], web=>q[https://github.com/saiftynet/Term-Graille] } } }
 #     MIN_PERL_VERSION => q[5.010000]
 #     NAME => q[Term::Graille]
-#     PREREQ_PM => { Algorithm::Line::Bresenham=>q[0.13], Time::HiRes=>q[0], strict=>q[0], warnings=>q[0] }
+#     PREREQ_PM => { Algorithm::Line::Bresenham=>q[0.151], Data::Dumper=>q[0], Storable=>q[0], Term::ReadKey=>q[0], Time::HiRes=>q[0], strict=>q[0], warnings=>q[0] }
 #     TEST_REQUIRES => {  }
 #     VERSION_FROM => q[lib/Term/Graille.pm]
 
@@ -60,11 +60,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Term::Graille
 NAME_SYM = Term_Graille
-VERSION = 0.08
+VERSION = 0.09
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_08
+VERSION_SYM = 0_09
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.08
+XS_VERSION = 0.09
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -167,7 +167,8 @@ O_FILES  =
 H_FILES  = 
 MAN1PODS = 
 MAN3PODS = lib/Term/Graille.pm \
-	lib/Term/Graille/Font.pm
+	lib/Term/Graille/Font.pm \
+	lib/Term/Graille/IO.pm
 
 # Where is the Config information that we are using/depend on
 CONFIGDEP = $(PERL_ARCHLIBDEP)$(DFSEP)Config.pm $(PERL_INCDEP)$(DFSEP)config.h
@@ -192,7 +193,10 @@ PERL_ARCHIVE_AFTER =
 
 TO_INST_PM = lib/Term/Graille.pm \
 	lib/Term/Graille/Chart.pm \
-	lib/Term/Graille/Font.pm
+	lib/Term/Graille/Font.pm \
+	lib/Term/Graille/IO.pm \
+	lib/Term/Graille/Menu.pm \
+	lib/Term/Graille/Sprite.pm
 
 
 # --- MakeMaker platform_constants section:
@@ -262,7 +266,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Term-Graille
-DISTVNAME = Term-Graille-0.08
+DISTVNAME = Term-Graille-0.09
 
 
 # --- MakeMaker macro section:
@@ -420,10 +424,12 @@ POD2MAN = $(POD2MAN_EXE)
 
 manifypods : pure_all config  \
 	lib/Term/Graille.pm \
-	lib/Term/Graille/Font.pm
+	lib/Term/Graille/Font.pm \
+	lib/Term/Graille/IO.pm
 	$(NOECHO) $(POD2MAN) --section=$(MAN3EXT) --perm_rw=$(PERM_RW) -u \
 	  lib/Term/Graille.pm $(INST_MAN3DIR)/Term::Graille.$(MAN3EXT) \
-	  lib/Term/Graille/Font.pm $(INST_MAN3DIR)/Term::Graille::Font.$(MAN3EXT) 
+	  lib/Term/Graille/Font.pm $(INST_MAN3DIR)/Term::Graille::Font.$(MAN3EXT) \
+	  lib/Term/Graille/IO.pm $(INST_MAN3DIR)/Term::Graille::IO.$(MAN3EXT) 
 
 
 
@@ -510,14 +516,17 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '    - t' >> META_new.yml
 	$(NOECHO) $(ECHO) '    - inc' >> META_new.yml
 	$(NOECHO) $(ECHO) 'requires:' >> META_new.yml
-	$(NOECHO) $(ECHO) '  Algorithm::Line::Bresenham: '\''0.13'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) '  Algorithm::Line::Bresenham: '\''0.151'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) '  Data::Dumper: '\''0'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) '  Storable: '\''0'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) '  Term::ReadKey: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  Time::HiRes: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  perl: '\''5.010000'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  strict: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) '  warnings: '\''0'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'resources:' >> META_new.yml
 	$(NOECHO) $(ECHO) '  repository: https://github.com/saiftynet/Term-Graille.git' >> META_new.yml
-	$(NOECHO) $(ECHO) 'version: '\''0.08'\''' >> META_new.yml
+	$(NOECHO) $(ECHO) 'version: '\''0.09'\''' >> META_new.yml
 	$(NOECHO) $(ECHO) 'x_serialization_backend: '\''CPAN::Meta::YAML version 0.018'\''' >> META_new.yml
 	-$(NOECHO) $(MV) META_new.yml $(DISTVNAME)/META.yml
 	$(NOECHO) $(ECHO) Generating META.json
@@ -555,7 +564,10 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '      },' >> META_new.json
 	$(NOECHO) $(ECHO) '      "runtime" : {' >> META_new.json
 	$(NOECHO) $(ECHO) '         "requires" : {' >> META_new.json
-	$(NOECHO) $(ECHO) '            "Algorithm::Line::Bresenham" : "0.13",' >> META_new.json
+	$(NOECHO) $(ECHO) '            "Algorithm::Line::Bresenham" : "0.151",' >> META_new.json
+	$(NOECHO) $(ECHO) '            "Data::Dumper" : "0",' >> META_new.json
+	$(NOECHO) $(ECHO) '            "Storable" : "0",' >> META_new.json
+	$(NOECHO) $(ECHO) '            "Term::ReadKey" : "0",' >> META_new.json
 	$(NOECHO) $(ECHO) '            "Time::HiRes" : "0",' >> META_new.json
 	$(NOECHO) $(ECHO) '            "perl" : "5.010000",' >> META_new.json
 	$(NOECHO) $(ECHO) '            "strict" : "0",' >> META_new.json
@@ -571,7 +583,7 @@ metafile : create_distdir
 	$(NOECHO) $(ECHO) '         "web" : "https://github.com/saiftynet/Term-Graille"' >> META_new.json
 	$(NOECHO) $(ECHO) '      }' >> META_new.json
 	$(NOECHO) $(ECHO) '   },' >> META_new.json
-	$(NOECHO) $(ECHO) '   "version" : "0.08",' >> META_new.json
+	$(NOECHO) $(ECHO) '   "version" : "0.09",' >> META_new.json
 	$(NOECHO) $(ECHO) '   "x_serialization_backend" : "JSON::PP version 4.02"' >> META_new.json
 	$(NOECHO) $(ECHO) '}' >> META_new.json
 	-$(NOECHO) $(MV) META_new.json $(DISTVNAME)/META.json
@@ -857,12 +869,15 @@ testdb_static :: static pure_all
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="Term-Graille" VERSION="0.08">' > Term-Graille.ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="Term-Graille" VERSION="0.09">' > Term-Graille.ppd
 	$(NOECHO) $(ECHO) '    <ABSTRACT>Graphical Display in the terminal using UTF8 Braille characters</ABSTRACT>' >> Term-Graille.ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>Saif Ahmed</AUTHOR>' >> Term-Graille.ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> Term-Graille.ppd
 	$(NOECHO) $(ECHO) '        <PERLCORE VERSION="5,010000,0,0" />' >> Term-Graille.ppd
-	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Algorithm::Line::Bresenham" VERSION="0.13" />' >> Term-Graille.ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Algorithm::Line::Bresenham" VERSION="0.151" />' >> Term-Graille.ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Data::Dumper" />' >> Term-Graille.ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Storable::" />' >> Term-Graille.ppd
+	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Term::ReadKey" />' >> Term-Graille.ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="Time::HiRes" />' >> Term-Graille.ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="strict::" />' >> Term-Graille.ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="warnings::" />' >> Term-Graille.ppd
@@ -878,7 +893,10 @@ pm_to_blib : $(FIRST_MAKEFILE) $(TO_INST_PM)
 	$(NOECHO) $(ABSPERLRUN) -MExtUtils::Install -e 'pm_to_blib({@ARGV}, '\''$(INST_LIB)/auto'\'', q[$(PM_FILTER)], '\''$(PERM_DIR)'\'')' -- \
 	  'lib/Term/Graille.pm' 'blib/lib/Term/Graille.pm' \
 	  'lib/Term/Graille/Chart.pm' 'blib/lib/Term/Graille/Chart.pm' \
-	  'lib/Term/Graille/Font.pm' 'blib/lib/Term/Graille/Font.pm' 
+	  'lib/Term/Graille/Font.pm' 'blib/lib/Term/Graille/Font.pm' \
+	  'lib/Term/Graille/IO.pm' 'blib/lib/Term/Graille/IO.pm' \
+	  'lib/Term/Graille/Menu.pm' 'blib/lib/Term/Graille/Menu.pm' \
+	  'lib/Term/Graille/Sprite.pm' 'blib/lib/Term/Graille/Sprite.pm' 
 	$(NOECHO) $(TOUCH) pm_to_blib
 
 

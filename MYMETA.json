@@ -32,7 +32,10 @@
       },
       "runtime" : {
          "requires" : {
-            "Algorithm::Line::Bresenham" : "0.13",
+            "Algorithm::Line::Bresenham" : "0.151",
+            "Data::Dumper" : "0",
+            "Storable" : "0",
+            "Term::ReadKey" : "0",
             "Time::HiRes" : "0",
             "perl" : "5.010000",
             "strict" : "0",
@@ -48,6 +51,6 @@
          "web" : "https://github.com/saiftynet/Term-Graille"
       }
    },
-   "version" : "0.08",
+   "version" : "0.09",
    "x_serialization_backend" : "JSON::PP version 4.02"
 }
