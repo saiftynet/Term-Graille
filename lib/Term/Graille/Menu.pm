@@ -1,3 +1,23 @@
+=head1 NAME
+Term::Graille::Menu - Simple modal menuing system for Graille
+=head1 SYNOPSIS
+ 
+    my $menu=new Term::Graille::Menu(
+          menu=>[["File","New","Save","Load","Quit"],["Edit","Clear",["Reformat","2x4","4x4"],["Scroll","left","right","up","down"]],"About"],
+          redraw=>\&main::refreshScreen, # function to redraw the application screen 
+          callback=>\&main::menuActions, # Items that are selected are passed as a string to a dispatcher
+          );
+
+
+=head1 DESCRIPTION
+
+This menuing system allows intuitive user interaction modelled on a typical top menubar found in many appluication.
+The key for this module is simplicity in use, allowing rapid creation and deployment.  The menuing system itself requires a
+=begin html
+<img src="https://user-images.githubusercontent.com/34284663/180637940-01b583a0-1a71-4a5d-a29b-394a940ce46f.gif">
+=end html
+=head1 FUNCTIONS
+
 package  Term::Graille::Menu;
 
 our $VERSION=0.09;
