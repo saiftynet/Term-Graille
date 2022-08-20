@@ -32,22 +32,59 @@ binmode STDOUT, ":utf8";
 use Term::ReadKey;              # allow reading from keyboard
 use Term::Graille  qw/colour paint printAt cursorAt clearScreen border/;
 
+=head1 FUNCTIONS
+
+=cut
+
+=head3 C<my $io=Term::Graille::IO-E<gt>new(%params)>
+
+Creates a new IO object for user interaction.
+Three modes are available; C<free>, means the key presses are captured
+and not echoed, C<menu> requires the setting of C<$io-E<gt>{menu}>,
+using    C<$io-E<gt>addMenu($menu), and C<normal> when the key presses are
+read normally
+
+=cut
+
 sub new{
     my $class = shift;     #  
     my $self={};
     $self->{actions}={};
     $self->{refreshRate}=20;
     $self->{key}="";
-    $self->{mode}="free";# one of qw/free menu entry/
+    $self->{mode}="free";# one of qw/free menu normal/
     ($self->{terminalWidth},$self->{terminalHeight},$self->{terminalXPixels},$self->{terminalYPixels})=GetTerminalSize;
     bless $self,$class;
     return $self;
 }
 
+=head3 C<my $io-E<gt>addMenu($menu,$trigger)>
+
+Uses a topbar dropdown menu of class Term::Graille::Menu. If C<$trigger> is specified
+that activates or deactivates the menu; if not specified the 'm' key activates the menu.
+ 
+=cut
+
 sub addMenu{
-	my ($self,$menu)=@_;
+	my ($self,$menu,$trigger)=@_;
+	$self->{menuTrigger}=$trigger//"m";
 	$self->{menu}=$menu;
 }
+
+
+=head3 C<my $io-E<gt>addAction($menu,$key,$actionData)>
+
+Determines what happens when a key is pressed in C<free> mode. Functions in the
+users scripts have to be "fully qualified" e.g. C<&main::function()>
+
+    $io->addAction("s",{note=>"s key saves sprite",proc=>sub{
+	   my ($self,$canvas,$sprite,$cursor)=@_; # these are the objects passed as parameters
+	   &main::saveSprite($sprite);  
+	   &main::flashCursor($sprite,$cursor);
+	   &main::restoreIO();},}  );	
+ 
+
+=cut
 
 sub addAction{
   my ($self,$key, $actionData)=@_;
@@ -56,6 +93,15 @@ sub addAction{
     $self->{actions}->{$key}->{$k}=$args{$k};
   }
 }
+
+=head3 C<my $io-E<gt>run($io,@objects)>
+
+Iniiating the capture of the key presses may trigger actions.  These
+actions may need parameters including the $io object itself, it is useful 
+to select all possible objects that may need to be passed to the anonymous 
+subroutines added by C<addAction> above.
+
+=cut
 
 sub run{
   my ($self,@objects)=@_;
@@ -72,9 +118,13 @@ sub run{
 			$pressed="enter" if ($OrdKey==10);
 			printAt (20,60,"key pressed=$OrdKey $pressed   ");
 			if ($self->{mode} eq "free"){
-				$self->{actions}->{$pressed}->{proc}->(@objects)   
-					 if defined $self->{actions}->{$pressed}->{proc};
+				if (defined $self->{actions}->{$pressed}->{proc}){
+					$self->{actions}->{$pressed}->{proc}->(@objects)
+				}
+				elsif((exists $self->{menuTrigger})&&($pressed  eq $self->{menuTrigger})){	 
+					$self->startMenu();
 				 }
+			 }
 			elsif ($self->{mode} eq "menu"){
 				if ($pressed  eq"Am"){ #up arrow
 					$self->{menu}->upArrow()
@@ -88,8 +138,11 @@ sub run{
 				elsif ($pressed  eq"Dm"){ #right arrow
 					$self->{menu}->rightArrow()
 				}				
-				elsif ($pressed  eq"enter"){ #right arrow
+				elsif ($pressed  eq"enter"){ #enter key
 					$self->{menu}->openItem()
+				}				
+				elsif ($pressed  eq $self->{menuTrigger}){ #right arrow
+					$self->{menu}->closeMenu()
 				}							
 			}				 
 		}   
@@ -103,6 +156,14 @@ sub run{
   ReadMode 'normal';  
 }  
 
+
+=head3 C<my $io-E<gt>startMenu()>
+
+Starts a menu as described in Term::Graille::Menu.  The $io object enters a "menu" mode
+when Arrow, Enter and the Trigger key (see above) are passed to the Menu object
+ 
+=cut
+
 sub startMenu{
 	my $self=shift;
 	if (exists $self->{menu}){
@@ -111,10 +172,24 @@ sub startMenu{
 	}
 }
 
+=head3 C<my $io-E<gt>stopMenu()>
+
+Stops menu and returns to C<free> mode
+ 
+=cut
+
 sub stopMenu{
 	my $self=shift;
 	$self->{mode}="free";
 }
+
+=head3 C<my $io-E<gt>stop()>
+
+stops capturing key presses and enters normal mode. Useful for exeample, when the 
+user needs to enter data
+ 
+=cut
+
 
 sub stop{
 	my $self=shift;
