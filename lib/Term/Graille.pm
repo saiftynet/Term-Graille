@@ -689,7 +689,7 @@ sub border{
 	if ($title){
 		my $titleSize=4+length $title;
 		$title=$borders{$style}{ts}.colour($titleColour||"reset")." ".$title.colour($colour)." ".$borders{$style}{te};
-		substr ($box[0],3,$titleSize)=$title;    
+		substr ($box[0],6,$titleSize)=$title;    
 	};
 	push @box,($borders{$style}{l}.(" "x($right-$left)).$borders{$style}{r})x($bottom-$top);;
 	push @box,($borders{$style}{bl}.($borders{$style}{b}x($right-$left)).$borders{$style}{br}.colour("reset"));
