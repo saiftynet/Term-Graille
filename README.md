@@ -51,7 +51,7 @@ In the initial demo above a Turtle script was used to produce a drawing of text.
 
 ## Drop down menu
 
-In developing a sprite editor on the console, mulitiple user interactions were required.  Interactive graphical menus are not easy in the console.  Tickit and Term::Menus are powerful modules.  Term::Graille::Menu goes for simplicity rather than power.  This comes in v 0.09.  The sprite editor itself is not complete yet, but would be very cumbersome without something to aid visual development with multiple options and features.Term::Graille::::Menu makes it very simple to create menus for ANSI terminals.
+In developing a sprite editor on the console, mulitiple user interactions were required.  Interactive graphical menus are not easy in the console.  Tickit and Term::Menus are powerful modules.  Term::Graille::Menu goes for simplicity rather than power.  This comes in v 0.09.  The sprite editor itself is not complete yet, but would be very cumbersome without something to aid visual development with multiple options and features.Term::Graille::Menu makes it very simple to create menus for ANSI terminals.
 
 The menu in this image is created using:
 ```
