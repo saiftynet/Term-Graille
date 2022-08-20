@@ -49,4 +49,9 @@ In the initial demo above a Turtle script was used to produce a drawing of text.
 
 ![Screenshot from 2022-08-02 18-32-01](https://user-images.githubusercontent.com/34284663/182438208-793f8c7a-6861-4f2c-b414-86c66ceb92b9.png)
 
+## Drop down menu
+
+In developing a sprite editor on tghe console, mulitiple user interactions were required.  Interactive graphical menus are not easy in the console.  Tickit and Term::Menus are powerful modules.  Term::Graille::Menu goes for simplicity rather than power.  This comes in v 0.09
+
+![menu](https://user-images.githubusercontent.com/34284663/185751328-f5b67fa4-c77d-40b0-ac3a-0c6c93239fae.gif)
 
