@@ -2,6 +2,7 @@
 
 use strict; use warnings;
 use utf8;
+use lib "../lib";
 use open ":std", ":encoding(UTF-8)";
 use Term::Graille  qw/colour paint printAt cursorAt clearScreen border blockBlit block2braille pixelAt/;
 use Term::Graille::IO;
@@ -13,6 +14,7 @@ my $canvas;
 my $width=45;
 my $height=40;
 my $spriteBank={};
+my $dir=".";
 $spriteBank->{empty}=loadSprite("empty");
 my $sprite=$spriteBank->{empty};
 
@@ -28,7 +30,6 @@ sub drawEditor{
 		borderStyle => "double",
 		title=>"$SpWidth x $SpHeight",
 	  );
-	  
 }
 
 my @colours=qw/red blue green yellow cyan magenta white/;
@@ -39,7 +40,10 @@ my $cursor=[5,5];
 
 flashCursor($sprite,$cursor);
 my $menu=new Term::Graille::Menu(
-          menu=>[["File","New","Save","Load","Quit"],["Edit","Clear",["Reformat","2x4","4x4"],["Scroll","left","right","up","down"]],"About"],
+          menu=>[["File","New Sprite Bank","Save Sprite Bank","Load Sprite Bank","Quit"],
+                 ["Sprites","New Sprite","Edit Sprite","Copy Sprite","Delete Sprite","Import Sprite","Export Sprite"],
+                 ["Edit","Clear","MirrorX","MirrorY","Rotate+","Rotate-",["Reformat","2x4","4x4"],["Scroll","left","right","up","down"]],
+                 "About"],
           redraw=>\&main::refreshScreen,
           callback=>\&main::menuActions,
           );
@@ -82,14 +86,10 @@ $io->addAction("s",{note=>"s key",proc=>sub{
 	   &main::restoreIO();},}  );		
 $io->addAction("l",{note=>"l key",proc=>sub{
 	   my ($self,$canvas,$sprite,$cursor)=@_;
-	   
 	   my $tmp=&main::loadSprite();
 	   $sprite=[@$tmp] if ($tmp);
 	   &main::flashCursor($sprite,$cursor);
-	   &main::restoreIO(); },}  );			
-$io->addAction("m",{note=>"m key",proc=>sub{
-	   my ($self,$canvas,$sprite,$cursor)=@_;
-       $self->startMenu();},}  );	
+	   &main::restoreIO(); },}  );
 	   
 restoreIO();
 
@@ -105,7 +105,33 @@ sub refreshScreen{
 sub menuActions{
 	my $action=shift;
 	if ($action){
-		printAt(18,5,"Menu returns $action");
+		printAt(2,52,"Menu returns $action");
+		for($action){
+			/Import Sprite/ && do{
+				$menu->closeMenu(1);
+				my $tmp=loadSprite();
+				$sprite=[@$tmp] if ($tmp);
+				flashCursor($sprite,$cursor);
+				restoreIO();
+				last;
+			};
+			/Export Sprite/ && do{
+				$menu->closeMenu(1);
+				saveSprite($sprite);
+				restoreIO();
+				last;
+			};	
+			/Delete Sprite/ && do{
+				$menu->closeMenu(1);
+				deleteSprite();
+				refreshScreen();
+				restoreIO();
+				last;
+			};			
+			
+			
+		}
+		
 	}
 	else{
 		restoreIO();
@@ -132,18 +158,44 @@ sub restoreIO{
 	
 sub input{	
 	my $prompt=shift;
-	$io->stop();
-	printAt(21,5, $prompt);
-	print cursorAt(21,5+length $prompt);
+	$io->stop();   # stop IO capture of key strokes;
+    border(18,4,19,40,"thick","blue",$prompt,"yellow");
+    printSelectList("files",0,0,listFiles());
+	print cursorAt(19,7);
 	my $inp=<STDIN>;
 	chomp $inp;
 	return $inp;
 }
 
+sub errorMessage{
+	my ($err,$width)=shift;
+	$width//=40;
+	border(18,4,19,4+$width,"thick","blue","ERROR!","red");
+	printAt(19,7,$err);
+	
+}
+
+sub listFiles{
+	opendir(my $DIR, $dir) || die "Can't open directory $dir: $!";
+	my @files = grep {(/\.sp[rb]$/) && -f "$dir/$_" } readdir($DIR);
+	closedir $DIR;
+	return \@files;
+}
+
+sub printSelectList{
+	my ($listName,$selected,$start,$list)=@_;
+	border(5,54,19,75,"thick","blue",$listName,"yellow");
+	foreach (0..14){
+		printAt(7+$_,56,$list->[$_]) if ($_<@$list);
+	}
+}
+
 sub saveSprite{
 	my $sprite=shift;
-	my $fname=shift // input("Enter sprite name to save:-");
+	my $fname=shift // input("Enter sprite name to save");
 	clearScreen();
+	$fname=~s/.spr$//i;
+	return unless validSpriteName($fname);
 
 	my $output=Dumper([$sprite]);	
    $output=~ s/\\x\{([0-9a-f]{2,})\}/chr hex $1/ge;
@@ -152,16 +204,17 @@ sub saveSprite{
    $output=~s/\n\s+([^\s])/$1/g;
    $output=~s/\]\],/\]\],\n/g;
    
-   open my $dat,">:utf8","$fname.spr" or die "Unable to save spritefile $fname.spr $!;\n";  
+   open my $dat,">:utf8","$fname.spr" or errorMessage( "Unable to save spritefile $fname.spr") && return;;  
    print $dat $output;
    close $dat;
 }
 
 sub loadSprite{
-	my $fname=shift // input("Enter sprite name to load:-");
+	my $fname=shift // input("Enter sprite name to load");
 	clearScreen();
+	$fname=~s/.spr$//i;	
 	open my $grf,"<:utf8",$fname.".spr"  or do {
-		printAt(21,5, "Unable to open file $fname.spr $!;\n");
+		errorMessage( "Unable to load spritefile $fname.spr");
 		return;
 	};
 	my $data="";
@@ -172,6 +225,13 @@ sub loadSprite{
 		return;
 	} ;
 	return  $g;	
+}
+
+sub deleteSprite{
+	my $fname=shift // input("Enter sprite name to delete");
+	clearScreen();
+	$fname=~s/.spr$//i;	
+	unlink $fname.".spr";
 }
 
 sub drawBigSprite{
@@ -228,6 +288,10 @@ sub chr2blk{
             ((chr(ord($chr)|ord('⡀'))eq$chr)?$f:$b).((chr(ord($chr)|ord('⢀'))eq$chr)?$f:$b)];
 }
 
+
+sub validSpriteName{
+	return $_[0]=~/^[a-zA-Z0-9]+$/
+}
 
 
 
