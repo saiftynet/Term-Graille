@@ -5,7 +5,7 @@ Term::Graille::IO
 Allows user interaction in Graille Applications (or perhaps on any
 pterminal application).  Depends on Term::ReadKey and Time::HiRes;
 When integrated with Term::Graille::Menu allows a modal drop down menu
-that 
+that can be navigated using key presses.
 
 =head1 SYNOPSIS
 
@@ -23,7 +23,7 @@ that
 
 package Term::Graille::IO;
 
-our $VERSION=0.09;
+our $VERSION=0.10;
 
 use strict; use warnings;
 use Time::HiRes ("sleep");      # allow fractional sleeps 
@@ -41,7 +41,7 @@ use Term::Graille  qw/colour paint printAt cursorAt clearScreen border/;
 Creates a new IO object for user interaction.
 Three modes are available; C<free>, means the key presses are captured
 and not echoed, C<menu> requires the setting of C<$io-E<gt>{menu}>,
-using    C<$io-E<gt>addMenu($menu), and C<normal> when the key presses are
+using    C<$io-E<gt>addMenu($menu)>, and C<normal> when the key presses are
 read normally
 
 =cut

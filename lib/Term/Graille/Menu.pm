@@ -1,6 +1,7 @@
 =head1 NAME
 Term::Graille::Menu
 
+Modal hierarchical menu system
 
 =head1 SYNOPSIS
  
@@ -18,7 +19,7 @@ Term::Graille::Menu
 Developed to allow user interaction using a hierarchical menu in command line
 applications.  The menu is activated using a key press, and navigated 
 typically using arrow keys.  It does not handle or capture the key presses
-directly, and in Graille is used in conjunctyion with Term::Graille::IO
+directly, and in Graille is used in conjunction with Term::Graille::IO
 
 
 =begin html
@@ -34,20 +35,19 @@ directly, and in Graille is used in conjunctyion with Term::Graille::IO
 
 package  Term::Graille::Menu;
 
-our $VERSION=0.09;
+our $VERSION=0.10;
 
 use strict;use warnings;
 use Storable qw(dclone);
 use Term::Graille qw/colour printAt clearScreen/;
 use utf8;
 
-
 =head3 C<my $menu=Term::Graille::Menu-E<gt>new(%params)>
 
 Creates a new $menu; params are
 C<menu> The menu tree as an Array ref containing strings and arrayrefs.
 Branches are Array refs, and end nodes are strings. See above example to
-visuialise structure.  
+visualise structure.  
 C<redraw> This is a function to redraws the application screen.
 The menu will overwrite parts of the application screen, and this allows
 function needs to be provided to restire the screen.
@@ -87,7 +87,7 @@ sub setMenu{
 }
 
 
-=head3 C<my $menu-E<gt>redraw()>
+=head3 C<$menu-E<gt>redraw()>
 
 Calls the applications redraw function. This is required for the menu
 to be overwritten with application screen.
@@ -101,9 +101,7 @@ sub redraw{
 	
 }
 
-
-
-=head3 C<my $menu-E<gt>nextItem()>, C<my $menu-E<gt>prevItem()>, 
+=head3 C<$menu-E<gt>nextItem()>, C<my $menu-E<gt>prevItem()>, 
 C<my $menu-E<gt>closeItem()>, C<my $menu-E<gt>openItem()>
 
 Navigate the menu, select items.
@@ -147,23 +145,27 @@ sub openItem{# enter submemnu if one exists, or "open" the item;
 	} 		
 }
 
-=head3 C<my $menu-E<gt>closeMenu()>
+=head3 C<$menu-E<gt>closeMenu($cba)>
 
-Closes the menu, redraws the screen (using C<$menu->redraw();>) and sends
-C<undef> to  C<$menu->{callback}>;
+Closes the menu, redraws the screen (using C<$menu->redraw();>).  It then sends
+C<undef> to  C<$menu->{callback}> unless $cba is a true value; If the menu needs
+to be closed in the callback dispatcher, then $cba should be set (e.g.. 
+C<$menu-E<gt>closeMenu($cba,1)>
 
 =cut
 
 
 sub closeMenu{
-	my $self=shift;
+	my ($self,$action)=@_;
 	$self->redraw() if defined $self->redraw() ;
+	return if $action;
 	$self->{callback}->(undef) if $self->{callback};
+#	my ($package, $filename, $line) = caller;
 }
 
 
-=head3 C<my $menu-E<gt>upArrow()>, C<my $menu-E<gt>downArrow()>, 
-C<my $menu-E<gt>leftArraow()>, C<my $menu-E<gt>rightArrow()>
+=head3 C<$menu-E<gt>upArrow()>, C<$menu-E<gt>downArrow()>, 
+C<$menu-E<gt>leftArraow()>, C<$menu-E<gt>rightArrow()>
 
 The menu does not acpture key presses, but provides methods to allow
 key presses to trigger navigation.
