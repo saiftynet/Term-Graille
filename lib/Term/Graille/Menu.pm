@@ -1,16 +1,19 @@
 =head1 NAME
 Term::Graille::Menu
 
-Modal hierarchical menu system
+Modal hierarchical Menu system
 
 =head1 SYNOPSIS
  
+    use Term::Graille::Interact;
+    use Term::Graille::Menu ;   # provides Term::Graille::Menu
+    
     my $menu=new Term::Graille::Menu(
           menu=>[["File","New","Save","Load","Quit"],
                  ["Edit","Clear",["Reformat","2x4","4x4"],["Scroll","left","right","up","down"]],
                  "About"],
           redraw=>\&main::refreshScreen,
-          callback=>\&main::menuActions,
+          dispatcher=>\&main::menuActions,
           );
 
 
@@ -19,7 +22,7 @@ Modal hierarchical menu system
 Developed to allow user interaction using a hierarchical menu in command line
 applications.  The menu is activated using a key press, and navigated 
 typically using arrow keys.  It does not handle or capture the key presses
-directly, and in Graille is used in conjunction with Term::Graille::IO
+directly, and in Graille is used in conjunction with Term::Graille::Interact
 
 
 =begin html
@@ -35,8 +38,6 @@ directly, and in Graille is used in conjunction with Term::Graille::IO
 
 package  Term::Graille::Menu;
 
-our $VERSION=0.10;
-
 use strict;use warnings;
 use Storable qw(dclone);
 use Term::Graille qw/colour printAt clearScreen/;
@@ -48,12 +49,17 @@ Creates a new $menu; params are
 C<menu> The menu tree as an Array ref containing strings and arrayrefs.
 Branches are Array refs, and end nodes are strings. See above example to
 visualise structure.  
-C<redraw> This is a function to redraws the application screen.
-The menu will overwrite parts of the application screen, and this allows
-function needs to be provided to restire the screen.
-C<callback> The menu does not call any functions, instead returns the
+C<redraw> This is a function that needs to be supplied to redraw the
+application screen. The menu will overwrite parts of the application screen,
+and this function needs to be provided to restore the screen.
+C<dispatcher> The menu does not call any functions, instead returns the
 leaf string selected.  It is upto the main application to use this string to 
-in a dispatch routine (the callback function supplied)
+in a dispatch routine (the dispatcher function supplied)
+C<pos> Optional. The default position is [2,2], but setting this parameter allows 
+the menu to be placed elsewhere
+C<highlightColour> Optional. The selected item is highlighted default "black on_white"
+C<normalColour> Optional. The normal colour of menu items "white on_black"
+
 
 =cut
 
@@ -64,11 +70,19 @@ sub new{
     bless $self,$class;
     $self->{menu}=$params{menu}//[];
     $self->{redraw}=$params{redraw} if (exists $params{redraw});        # function to redraw application
-    $self->{callback}=$params{callback} if (exists $params{callback});  # function to call after menu item selected 
+    $self->{dispatcher}=$params{dispatcher} if (exists $params{dispatcher});  # function to call after menu item selected 
 	$self->{breadCrumbs}=[0];
 	$self->{pos}=$params{pos}//[2,2];
 	$self->{highlightColour}=$params{highlightColour}//"black on_white";
 	$self->{normalColour}=$params{normalColour}//"white on_black";
+	$self->{keyAction}={
+		"[A"   =>sub{$self->upArrow()},
+		"[B"   =>sub{$self->downArrow()},
+		"[C"   =>sub{$self->rightArrow()},
+		"[D"   =>sub{$self->leftArrow()},
+		"enter"=>sub{$self->openItem()},
+		"esc"=>sub{$self->{close}->()},
+	};
 	return $self;
 }
 
@@ -83,7 +97,7 @@ in menmu tree.
 sub setMenu{
 	my ($self,$menu,$reset)=@_;
 	$self->{menu}=$menu;
-	$self->{breadCrumbs} if $reset;
+	$self->{breadCrumbs}=[0] if $reset;
 }
 
 
@@ -93,7 +107,6 @@ Calls the applications redraw function. This is required for the menu
 to be overwritten with application screen.
 
 =cut
-
 
 sub redraw{
 	my $self=shift;
@@ -112,66 +125,45 @@ sub nextItem{
 	my $self=shift;
 	$self->{breadCrumbs}->[-1]++ ;
 	$self->{breadCrumbs}->[-1]-- if ($self->drillDown() == 0);
-	$self->drawMenu();
+	$self->draw();
 }
 
 sub prevItem{
 	my $self=shift;
 	$self->{breadCrumbs}->[-1]-- unless $self->{breadCrumbs}->[-1]==0;
-	$self->drawMenu();
+	$self->draw();
 }
 
 sub closeItem{
 	my $self=shift;
 	if ($self->depth()>1){
 		pop @{$self->{breadCrumbs}};
-	    $self->drawMenu();
+	    $self->draw();
 	}
 	else{  # if at top level close menu;
-		$self->closeMenu();
+		$self->{close}->();
 	}
 }
 
+sub close{
+	my $self=shift;
+	$self->{breadCrumbs}=[0];
+	$self->redraw();
+	
+}
 
 sub openItem{# enter submemnu if one exists, or "open" the item;
 	my $self=shift;
     my ($label,$submenu)=@{$self->drillDown()};
     if ($submenu) {
 		$self->{breadCrumbs}=[@{$self->{breadCrumbs}},0];
-		$self->drawMenu();
+		$self->draw();
 	}
     else{
-		$self->{callback}->($label) if $self->{callback};
+		$self->{close}->();
+		$self->{dispatcher}->($label) if $self->{dispatcher};
 	} 		
 }
-
-=head3 C<$menu-E<gt>closeMenu($cba)>
-
-Closes the menu, redraws the screen (using C<$menu->redraw();>).  It then sends
-C<undef> to  C<$menu->{callback}> unless $cba is a true value; If the menu needs
-to be closed in the callback dispatcher, then $cba should be set (e.g.. 
-C<$menu-E<gt>closeMenu($cba,1)>
-
-=cut
-
-
-sub closeMenu{
-	my ($self,$action)=@_;
-	$self->redraw() if defined $self->redraw() ;
-	return if $action;
-	$self->{callback}->(undef) if $self->{callback};
-#	my ($package, $filename, $line) = caller;
-}
-
-
-=head3 C<$menu-E<gt>upArrow()>, C<$menu-E<gt>downArrow()>, 
-C<$menu-E<gt>leftArraow()>, C<$menu-E<gt>rightArrow()>
-
-The menu does not acpture key presses, but provides methods to allow
-key presses to trigger navigation.
-
-
-=cut
 
 sub upArrow{
 	my $self=shift;
@@ -179,7 +171,7 @@ sub upArrow{
 		$self->closeItem();
 	}
 	else{
-		$self->prevItem
+		$self->prevItem();
 	}
 }
 
@@ -193,7 +185,7 @@ sub downArrow{
 	}
 }
 
-sub leftArrow{
+sub rightArrow{
 	my $self=shift;
 	if ($self->depth()==1){
 		$self->nextItem();
@@ -203,18 +195,26 @@ sub leftArrow{
 	}
 }
 
-sub rightArrow{
+sub leftArrow{
 	my $self=shift;
 	if ($self->depth()==1){
 		$self->prevItem();
 	}
 	else{
 		$self->closeItem();
-		$self->{redraw}->();
-		$self->drawMenu();
 	}
+	$self->redraw();
+	$self->draw();
 }
 
+=head3 C<$menu-E<gt>drillDown()>, 
+
+An internal routione that drills down the breadcrumbs to get the 
+currently highlighted item, and whether it as any children. results
+returned an arrayRef containing two items [Label,Children?1:0]
+
+
+=cut
 
 sub drillDown{ # return curent item, and whether it has children;
 	my $self=shift;
@@ -227,13 +227,27 @@ sub drillDown{ # return curent item, and whether it has children;
 	return ref $tmp?[$tmp->[0],1]:[$tmp,0];
 }
 
-sub drawMenu{
+
+=head3 C<$menu-E<gt>drawMenu()>, 
+
+Draws the menu tree, obviously.  Overwrites parts of the canvas, therefore
+these may need to be redrawn after menu closed.
+
+=cut
+
+sub draw{
 	my $self=shift;
 	my $pos=[@{$self->{pos}}]; # get a copy of contents of $self->{pos}
 	foreach my $level (0..$#{$self->{breadCrumbs}}){
 		$pos = $self->drawLevel($level,$self->{breadCrumbs}->[$level],$pos)
 	}
 }
+
+=head3 C<$menu-E<gt>drawLevel()>, 
+
+Internal function to draw each level of the path to the selected item
+
+=cut
 
 sub drawLevel{
 	my ($self,$level,$ai,$pos)=@_;
@@ -275,10 +289,25 @@ sub drawLevel{
 	return $nextPos;
 }
 
+
+=head3 C<$menu-E<gt>depth()>, 
+
+Internal function to identify which level of the menu tree has been descended;
+I.e. the number of items in C<$menu->{breadCrumbs}>
+
+=cut
+
 sub depth{
 	my $self=shift;
 	return scalar @{$self->{breadCrumbs}};
 }
+
+
+=head3 C<$menu-E<gt>highlight()> 
+
+Internal function to highlight selected items
+
+=cut
 
 sub highlight{
 	my ($self,$str,$hl,$padding)=@_;
