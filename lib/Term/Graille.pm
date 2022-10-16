@@ -34,11 +34,11 @@ scrolling, border setting, and more in development.
 package Term::Graille;
 
 use strict;use warnings;
-our $VERSION="0.09";
+our $VERSION="0.10";
 use utf8;
 use open ":std", ":encoding(UTF-8)";
 use base 'Exporter';
-our @EXPORT_OK = qw/colour paint printAt clearScreen border blockBlit block2braille pixelAt cursorAt/;
+our @EXPORT_OK = qw/colour paint printAt clearScreen border blockBlit block2braille pixelAt cursorAt wrapText/;
 use Algorithm::Line::Bresenham 0.15;
 use Time::HiRes "sleep";
 
@@ -539,6 +539,7 @@ sub logo{
 	my @commands= map{s/^\s+|\s+$//g; $_}split(/[\n;]+/,$script);
 	foreach my $instr (@commands){
 		next unless $instr;
+		$instr=~s/#\.*$//;
 		next if ($instr=~/#/);
 		my ($c,$p)=split(/[\s]+/,$instr,2);
 		my @pars=split(/,/,$p) if $p;
@@ -561,7 +562,7 @@ sub logo{
 			last;
 		};
 		/^(rt|right)/  && do{
-			last unless ($pars[0] && (0+$pars[0]));
+			last unless ($pars[0] && ($pars[0]=~/^\d+$/));
 			$self->{logoVars}->{d}-=$pars[0];
 			$self->{logoVars}->{d}+=360 while($self->{logoVars}->{d}<360);
 			last;
@@ -595,6 +596,10 @@ sub logo{
 		/^ce/  && do{
 			$self->{logoVars}->{x}=$self->{width}/2;			
 			$self->{logoVars}->{y}=$self->{height}/2;
+			last;
+		};
+		/^cs/  && do{
+			$self->clear();
 			last;
 		};
 		/^sp/ && do{
@@ -664,7 +669,8 @@ our %borders=(
 
 our %colours=(black   =>30,red   =>31,green   =>32,yellow   =>33,blue   =>34,magenta   =>35,cyan  =>36,white   =>37,
                on_black=>40,on_red=>41,on_green=>42,on_yellow=>43,on_blue=>44,on_magenta=>4,on_cyan=>46,on_white=>47,
-               reset=>0, bold=>1, italic=>3, underline=>4, strikethrough=>9,);
+               reset=>0, bold=>1, italic=>3, underline=>4, blink=>5, strikethrough=>9, invert=>7,);
+               
 sub printAt{
   my ($row,$column,@textRows)=@_;
   @textRows = @{$textRows[0]} if ref $textRows[0];  
@@ -677,9 +683,7 @@ sub printAt{
 sub cursorAt{
 	my ($r,$c)=@_;
 	return "\033[?25l\033[".$r.";".$c."H";
-	
 }
-
 
 sub border{
 	my ($top,$left,$bottom,$right,$style,$colour,$title,$titleColour)=@_;
@@ -714,6 +718,33 @@ sub colour{
   my @formats=map {lc $_} split / +/,$fmts;  
   return join "",map {defined $colours{$_}?"\033[$colours{$_}m":""} @formats;
 }
+
+sub wrapText{
+	my ($str,$width)=@_;
+	my @lines=();
+	my $line="";
+	$str=~s/ +/ /gm;
+	$str=~s/\n/ \n /gm;
+	foreach my $word(split / /,$str){
+		if ($word eq "\n"){
+			push @lines,$line;
+			$line="";
+		}
+		elsif (1+length $line.$word > $width){
+			push @lines,$line;
+			$line=$word;
+		}
+		elsif ($line eq "") {
+			$line=$word
+		}
+		else{
+			$line=$line." ".$word
+		}
+	}
+	push @lines,$line;
+	return \@lines;
+}
+
 
 
 # given an 8 bit block of data, produce a braille block
