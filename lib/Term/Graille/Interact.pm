@@ -117,9 +117,17 @@ users scripts have to be "fully qualified" e.g. C<&main::function()>
 sub addAction{
   my ($self,$objectId,$key,$actionData)=@_;
   my %args=%$actionData;
-  foreach my $k (keys %args){
-    $self->{objects}->{$objectId}->{actions}->{$key}->{$k}=$args{$k};
+  if ($objectId  && $self->{objects}->{$objectId}){
+	  foreach my $k (keys %args){
+		$self->{objects}->{$objectId}->{actions}->{$key}->{$k}=$args{$k};
+	  }
   }
+  else{
+	  foreach my $k (keys %args){
+		$self->{actions}->{$key}->{$k}=$args{$k};
+	  }
+  }
+  
 }
 
 sub newId{
@@ -198,6 +206,9 @@ sub run{
 			elsif(exists $self->{triggers}->{$pressed}){
 			    $mode="($self->{triggers}->{$pressed})";
 				$self->start($self->{triggers}->{$pressed});
+			}
+			elsif(exists $self->{actions}->{others}){
+				$self->{actions}->{others}->{proc}->($pressed,$self->{gV});
 			}
 			else {   # otherwise collect the keys pressed in a buffer
 				$self->{keyBuffer}.=$pressed;
