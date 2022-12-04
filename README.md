@@ -71,3 +71,17 @@ my $menu=new Term::Graille::Menu(
  
 ![menu](https://user-images.githubusercontent.com/34284663/185751328-f5b67fa4-c77d-40b0-ac3a-0c6c93239fae.gif)
 
+## Audio
+
+A component of interaction often negl;ected in terminal aplications is sound.  Sound also adds an extra dimension to ganes.  Term::Graille::Audio attempts to add sound with the least possible dependencies.  It curently depends on pulseaudio in Linux (and Win32::Sound on windows although this is as yet untested).  At its simplest Audio can play a sound from its built-in sound sample set which it autgenerates.
+
+```
+use Term::Graille::Audio;
+
+my $beep=Term::Graille::Audio->new();    # TERM::Graille's Audio module
+$beep->playSound(undef, "A#1");
+```
+
+
+[piano.webm](https://user-images.githubusercontent.com/34284663/205505757-3207fa25-c1be-492c-b353-73cb365349f2.webm)
+
