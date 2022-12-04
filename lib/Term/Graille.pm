@@ -369,9 +369,10 @@ sub scroll{
 		/^r/i && do{
 			foreach my $row (0..$#{$self->{grid}}){
 				my @r=@{$self->{grid}->[$row]};
-				my $end=pop(@r);
-				unshift(@r,$wrap?$end:'⠀');
-				$self->{grid}->[$row]=\@r;
+				my @end=splice @r, -$numberOfChar, $numberOfChar;
+				@end=('⠀')x$numberOfChar unless $wrap;
+			#	unshift(@r,$wrap?@end:(('⠀')x$numberOfChar));
+				$self->{grid}->[$row]=[@end,@r];
 			}
 			last;
 		};
@@ -379,26 +380,29 @@ sub scroll{
 		/^l/i && do{
 			foreach my $row (0..$#{$self->{grid}}){
 				my @r=@{$self->{grid}->[$row]};
-				my $end=shift(@r);
-				push(@r,$wrap?$end:'⠀');
-				$self->{grid}->[$row]=\@r;
+				my @end=splice @r, 0, $numberOfChar;
+				@end=('⠀')x$numberOfChar unless $wrap;
+			#	push(@r,$wrap?@end:(('⠀')x$numberOfChar));
+				$self->{grid}->[$row]=[@r,@end];
 			}
 			last;
 		};
 				
 		/^d/i && do{
 				my @r=@{$self->{grid}};
-				my $end=shift(@r);
-				push(@r,$wrap?$end:[('⠀')x ($self->{width}/2+($self->{width}%2?1:0))]);
-				$self->{grid}=\@r;
+				my @end=splice @r, 0, $numberOfChar;
+				@end=([('⠀')x ($self->{width}/2+($self->{width}%2?1:0))])x$numberOfChar unless $wrap;
+			#	push(@r,$wrap?@end:(([('⠀')x ($self->{width}/2+($self->{width}%2?1:0))])x$numberOfChar));
+				$self->{grid}=[@r,@end];
 			last;
 		};
 				
 		/^u/i && do{
 				my @r=@{$self->{grid}};
-				my $end=pop(@r);
-				unshift(@r,$wrap?$end:[('⠀')x ($self->{width}/2+($self->{width}%2?1:0))]);
-				$self->{grid}=\@r;
+				my @end=splice @r, -$numberOfChar, $numberOfChar;
+				@end=([('⠀')x ($self->{width}/2+($self->{width}%2?1:0))])x$numberOfChar unless $wrap;
+			#	unshift(@r,$wrap?@end:(([('⠀')x ($self->{width}/2+($self->{width}%2?1:0))])x$numberOfChar));
+				$self->{grid}=[@end,@r];
 			last;
 		};		
 	}
@@ -468,6 +472,7 @@ othe $canvas drawing actions.  The optional C<$fmt> allows the setting of colour
 
 sub textAt{
 	my ($self,$x,$y,$text,$fmt)=@_;
+	return unless defined $text;
 	my ($chrX,$chrY,$xOffset,$yOffset)=charOffset($self,$x,$y);
 	if ($chrX!=-1){
 		my @chrs=split(//,$text);
