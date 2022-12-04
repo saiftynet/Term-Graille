@@ -1,6 +1,19 @@
 CHANGELOG
 Term::Graille - Graphical Display in the terminal using UTF8 Braille characters
 
+0.10
+-Term::Graille  Multicharacter scrolling of canvas
+-Term::Graille::Interact user interaction module added 
+-Term::Graille::Menu now used Interact; Term::Graille::IO deprecated to be removed in 0.11
+-Term::Graille::Dialog added
+-Term::Graille::Selector with limited file selecting capability, 
+-Term::Graille::Textarea with scrolling editable text
+-Term::Graille::Audio added
+- examples/editor.pl a terminal editor with a hierachical menu
+- examples/piano.pl testing Audio Module 
+
+
+
 0.09
 -starting Charting module
 -Term::Graille::IO user interaction module
