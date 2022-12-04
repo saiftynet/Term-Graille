@@ -186,12 +186,12 @@ sub confirmSave{  # if about to overwrite warn
 
 sub saveFile{
 	my ($param)=@_;
+	$io->close();
 	if ($param->{button} && $param->{button} eq "Cancel"){
 		$io->start("o1");
 		return;
 		};
 	my $file=$param->{file};
-	$io->close();
 	open(my $fh, ">", "$file") or die("Can't open file $file:$! ");
 	print $fh join("\n",@{$textarea->{text}});
 	close($fh);
@@ -199,7 +199,6 @@ sub saveFile{
 	$currentFile=$file;
 	$io->start("o1");
 }
-
 
 sub message{
 	my ($message,$input)=@_;
@@ -229,3 +228,4 @@ sub logo{
 	$canvas->{title}="Running $currentFile";
 	$canvas-> draw();
 }
+

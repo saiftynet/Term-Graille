@@ -1,9 +1,9 @@
 #! /usr/bin/env perl
 use strict; use warnings;
+ use lib "../lib/";
  use Term::Graille  qw/colour paint printAt clearScreen border/;
  use Term::Graille::Font  qw/loadGrf fontWrite/;
  use Time::HiRes "sleep";
- 
   my $canvas = Term::Graille->new(
     width  => 72,
     height => 64,
