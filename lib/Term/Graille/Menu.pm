@@ -43,6 +43,8 @@ use Storable qw(dclone);
 use Term::Graille qw/colour printAt clearScreen/;
 use utf8;
 
+our $VERSION=0.10;
+
 =head3 C<my $menu=Term::Graille::Menu-E<gt>new(%params)>
 
 Creates a new $menu; params are
@@ -103,7 +105,7 @@ sub setMenu{
 
 =head3 C<$menu-E<gt>redraw()>
 
-Calls the applications redraw function. This is required for the menu
+Calls the application' s redraw function. This is required for the menu
 to be overwritten with application screen.
 
 =cut
@@ -160,8 +162,9 @@ sub openItem{# enter submemnu if one exists, or "open" the item;
 		$self->draw();
 	}
     else{
+		my $bc=$self->{breadCrumbs};
 		$self->{close}->();
-		$self->{dispatcher}->($label) if $self->{dispatcher};
+		$self->{dispatcher}->($label,$bc) if $self->{dispatcher};
 	} 		
 }
 
@@ -275,6 +278,7 @@ sub drawLevel{
 			my $il=length(ref $_?$_->[0]:$_);
 			$longest=$il if ($longest<$il);
 			};
+		return if ($longest==-1); #empty list
 		printAt(@$pos,"┌".	("─"x$longest)."┐");
 		$pos->[0]+=1;
 		foreach my $mi (0..$#{$tmp}){ # skip first item which is label for list 

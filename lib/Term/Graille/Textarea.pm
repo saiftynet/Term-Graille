@@ -28,6 +28,8 @@ use strict;use warnings;
 use Term::Graille qw/colour printAt clearScreen border/;
 use utf8;
 
+our $VERSION=0.10;
+
 =head3 C<my $menu=Term::Graille::Menu-E<gt>new(%params)>
 
 Creates a new Textarea; params are

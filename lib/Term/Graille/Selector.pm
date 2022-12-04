@@ -4,6 +4,9 @@ use strict;use warnings;
 use Term::Graille qw/colour printAt clearScreen border cursorAt/;
 use utf8;
 
+
+our $VERSION=0.10;
+
 =head3 C<my $selector=Term::Graille::Selector-E<gt>new(%params)>
 
 Creates a new $chooser; params are
@@ -85,6 +88,13 @@ sub addChar{
 	 
 }
 
+
+=head3 C<my $selector=setSelected($item)>
+makes an item highlighted in the selector...this is just as a
+visual cue...the cursor is at the underlined item
+
+=cut
+
 sub setSelected{
 	my ($self,$item)=@_;
 	for my $o (0..$#{$self->{options}}){
@@ -99,6 +109,13 @@ sub setSelected{
 	}
 }
 
+
+=head3 C<my $selector=isSelected($item)>
+
+Test if an item has been preselected (used internallY
+
+=cut
+
 sub isSelected{
 	my ($self,$item)=@_;
 	my $sel=ref($self->{selected})?$self->{selected}:[$self->{selected}];
@@ -107,6 +124,14 @@ sub isSelected{
 	}
 	return 0	
 }
+
+
+=head3 C<$selector->nextItem()/prevItem()/selectItem()>
+
+These are internal methods to choose the item from the list using keys asin $selector->{keyActions} above;
+
+=cut
+
 
 sub nextItem{
 	my ($self)=@_;
@@ -127,7 +152,7 @@ sub selectItem{
 	if ($self->{multi}==0){
 		$self->{selected}=($self->{entry} and ($submitMethod == 2))?$self->{entry}:$self->{options}->[$self->{pointer}];
 		$self->{redraw}->();
-		$self->{callback}->({selected=>$self->{selected},method=>$submitMethod}) if $self->{callback};
+		$self->{callback}->({selected=>$self->{selected},method=>$submitMethod,%{$self->{param}}}) if $self->{callback};
 		return $self->{options}->[$self->{pointer}];
 	}
 	else{

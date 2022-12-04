@@ -7,6 +7,8 @@ use base 'Exporter';
 our @EXPORT_OK = qw/deathSentence confirm prompt caution/;
 use utf8;
 
+our $VERSION=0.10;
+
 =head3 C<my $dialog=Term::Graille::Dialog-E<gt>new(%params)>
 
 Creates a new dialog box; params are

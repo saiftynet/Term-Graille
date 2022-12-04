@@ -13,7 +13,7 @@ that can be navigated using key presses.
      $io->addAction(                             # add action for key press
                     "Am",                        # Am is returned for up arrow
                    {note=>"up arrow:cursor up ", # For drawing a menu
-                    proc=>sub{my $self.@args)=@_ ...}  # the action
+                    proc=>sub{my $self,@args)=@_ ...}  # the action
                     } ); 	
                    
      $io->run($io,@args);                        # start trapping keypresses
@@ -56,8 +56,8 @@ use Term::Graille  qw/colour paint printAt cursorAt clearScreen border/;
 =head3 C<my $io=Term::Graille::Interact-E<gt>new(%params)>
 
 Creates a new IO object for user interaction.
-Three modes are available; C<"main">, means the key presses are captured
-and not echoed, with actions specified on the main program
+C<"Main">, is default interaction profile, each active widget
+declkares its own interaction profile (responses to key presses)
 
 =cut
 
@@ -80,12 +80,16 @@ sub new{
 
 =head3 C<my $io-E<gt>addObject($menu,%params)>
 
-Adds a user interaction object.  %params are:-
+Adds a user interaction object.  params are:-
 
-objectId
-object
-actions
-trigger
+objectId:Id of the object if not set this is automatically generated
+
+object:  the reference to object REQUIRED 
+
+actions:  The key-press actions for this object when it is active
+
+trigger: 
+
  
 =cut
 
@@ -128,6 +132,25 @@ sub addAction{
 	  }
   }
   
+}
+
+
+=head3 C<my $io-E<gt>updateAction($menu,$action)>
+
+Adds a routine that is executed every interaction cycle
+e.g for animations
+
+=cut
+
+sub updateAction{
+  my ($self,$action)=@_;
+  $self->{actions}->{update}=$action;	
+}
+
+sub stopUpdates{
+  my ($self,)=@_;
+  delete $self->{actions}->{update};
+	
 }
 
 sub newId{
@@ -218,7 +241,7 @@ sub run{
 		}
 	  }
 	  
-	#  $self->{actions}->{update}->() if exists $self->{actions}->{update};
+	  $self->{actions}->{update}->() if $self->{actions}->{update};
   }  
   ReadMode 'normal';  
 }  
@@ -238,9 +261,11 @@ sub get_escape_sequence {
 }
 
 
-=head3 C<$io-E<gt>start()>
+=head3 C<$io-E<gt>start($objectId,$params)>
 
-Starts an object that consumes keypresses
+Starts an object that consumes keypresses. $params is a hash ref that is
+passed to the object to allow customusation
+
  
 =cut
 
@@ -248,11 +273,19 @@ sub start{
 	my ($self,$objectId,$params)=@_;
 	close($self->{activeObject}) if $self->{activeObject};
 	$self->{activeObject}=$objectId;
-	$self->{objects}->{$objectId}->{params}=$params;
+	$self->{objects}->{$objectId}->{params}=$params if defined $params;
 	my $closer=sub{$self->close()};
 	$self->{objects}->{$objectId}->{close}=$closer;   # closer function to object
 	$self->{objects}->{$objectId}->draw();
 }
+
+
+=head3 C<$io-E<gt>close()>
+
+closes currently active actually by calling Term::Graile::Interacts close(),
+this has been set during s Term::Graile::Interacts start($objectId)
+ 
+=cut
 
 sub close{
 	my ($self)=@_;
