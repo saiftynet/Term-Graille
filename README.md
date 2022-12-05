@@ -73,7 +73,7 @@ my $menu=new Term::Graille::Menu(
 
 ## Audio
 
-A component of interaction often negl;ected in terminal aplications is sound.  Sound also adds an extra dimension to ganes.  Term::Graille::Audio attempts to add sound with the least possible dependencies.  It curently depends on pulseaudio in Linux (and Win32::Sound on windows although this is as yet untested).  At its simplest Audio can play a sound from its built-in sound sample set which it autgenerates.
+A component of interaction often neglected in terminal aplications is sound.  Sound also adds an extra dimension to games.  Term::Graille::Audio attempts to add sound with the least possible dependencies.  It curently depends on pulseaudio in Linux to  create a /dev/dsp (and Win32::Sound on Windows although this is as yet untested).  At its simplest Audio can play a sound from its built-in sound sample set which it can autogenerate, although this is customisable and may include a speech synthesizer module based on [SP0256 allophones](https://github.com/saiftynet/SP0256).
 
 ```
 use Term::Graille::Audio;
