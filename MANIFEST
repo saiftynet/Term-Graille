@@ -9,7 +9,7 @@ examples/animations/cheetah/cheetah7.png
 examples/animations/cheetah/cheetah8.png
 examples/animations/dragon.png
 examples/demo.pl
-examples/empty.spr
+examples/editor.pl
 examples/fontDemo.pl
 'examples/fonts/Anvil Alternate.grf'
 'examples/fonts/Area51 Overwide.grf'
@@ -30,21 +30,55 @@ examples/fonts/Reflections.grf
 examples/fonts/Tentacle.grf
 'examples/fonts/ZX Times.grf'
 'examples/fonts/ZX Venice.grf'
-examples/help.spr
+examples/graillepiano.pl
 examples/image2grl.pl
 examples/lineDemo.pl
-examples/menu.pl
 examples/perl2.grl
 examples/perl2.jpg
+examples/pulseaudio.pl
 examples/spriteEditor.pl
+examples/sprites/bar.spr
+examples/sprites/boat.spr
+examples/sprites/cow.spr
+examples/sprites/crwoned.spr
+examples/sprites/default.spb
+examples/sprites/die.spr
+examples/sprites/dummy.spb
+examples/sprites/empty.spr
+examples/sprites/File.spr
+examples/sprites/forbidden.spr
+examples/sprites/game1.spb
+examples/sprites/Hash.spr
+examples/sprites/help.spr
+examples/sprites/info.spr
+examples/sprites/Launcher.spr
+examples/sprites/m.spr
+examples/sprites/man1.spr
+examples/sprites/manhatwalk1.spr
+examples/sprites/manhatwalk2.spr
+examples/sprites/manhatwalk3.spr
+examples/sprites/manhatwalk4.spr
+examples/sprites/mm.spr
+examples/sprites/oyster.spr
+examples/sprites/perly.spr
+examples/sprites/photos.spr
+examples/sprites/rocket.spr
+examples/sprites/spiral.spr
+examples/sprites/testmessage.spb
+examples/sprites/warn.spr
+examples/sprites/warn2.spr
 examples/testanimate.pl
-examples/turtle.pl
+examples/testBeep1.pl
+examples/visualiser.pl
 lib/Term/Graille.pm
+lib/Term/Graille/Audio.pm
 lib/Term/Graille/Chart.pm
+lib/Term/Graille/Dialog.pm
 lib/Term/Graille/Font.pm
-lib/Term/Graille/IO.pm
+lib/Term/Graille/Interact.pm
 lib/Term/Graille/Menu.pm
-lib/Term/Graille/Sprite.pm
+lib/Term/Graille/Selector.pm
+lib/Term/Graille/Textarea.pm
 Makefile.PL
 MANIFEST			This list of files
 t/1.t
