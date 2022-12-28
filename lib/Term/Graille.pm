@@ -34,7 +34,7 @@ scrolling, border setting, and more in development.
 package Term::Graille;
 
 use strict;use warnings;
-our $VERSION="0.10";
+our $VERSION="0.11";
 use utf8;
 use open ":std", ":encoding(UTF-8)";
 use base 'Exporter';
@@ -305,7 +305,7 @@ sub thick_line{
 
 =head3 C<$canvas-E<gt>varthick_line($x0,$y0,$x1,$y1,
        $left,$argL,
-       $right,$argR, $value)=@_;
+       $right,$argR, $value)=@_;>
        
 Uses Algorithm::Line::Bresenham to draw a variable thickness, defined by
 end points C<$x0,$y0,$x1,$y1>) and thickness defined by two user defined
@@ -335,7 +335,6 @@ The optional value C<$value> sets or unsets the pixels. If C<$value> is a
 valid colour (see below) the line will be drawn with that colour.
 
 =cut
-
 
 sub polyline{
     my $self=shift;
@@ -420,7 +419,7 @@ sub blockBlit{  # needs protection
 	my ($self, $blk, $gridX, $gridY)=@_;
 	for my $x(0..$#{$blk->[0]}){
 		for my $y(0..$#$blk){
-			$self->{grid}->[$gridY+$y]->[$gridX+$x]=$blk->[$#$blk-$y]->[$x]
+			$self->{grid}->[$gridY+$y-$#$blk]->[$gridX+$x]=$blk->[$#$blk-$y]->[$x]
 		}
 	}
 }
