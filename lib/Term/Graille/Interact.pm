@@ -24,7 +24,7 @@ that can be navigated using key presses.
 
 package Term::Graille::Interact;
 
-our $VERSION=0.10;
+our $VERSION=0.11;
 
 use strict; use warnings;
 use lib "../lib";
@@ -222,22 +222,24 @@ sub run{
 			}
 		}	
 		else {  # if mode is main
-			my $mode="(MAIN)";
-			if (defined $self->{actions}->{$pressed}->{proc}){
-				$self->{actions}->{$pressed}->{proc}->($self->{gV})
+			my $mode="(MAIN)";my $note="";
+			if (defined $self->{actions}->{$pressed}->{proc}){     # actions for specified keys
+				$self->{actions}->{$pressed}->{proc}->($self->{gV});
+				$note= $self->{actions}->{$pressed}->{note}//"No note"
+				
 			}
-			elsif(exists $self->{triggers}->{$pressed}){
+			elsif(exists $self->{triggers}->{$pressed}){           # actions for triggers
 			    $mode="($self->{triggers}->{$pressed})";
 				$self->start($self->{triggers}->{$pressed});
 			}
-			elsif(exists $self->{actions}->{others}){
+			elsif(exists $self->{actions}->{others}){              # actions for other keys
 				$self->{actions}->{others}->{proc}->($pressed,$self->{gV});
 			}
 			else {   # otherwise collect the keys pressed in a buffer
 				$self->{keyBuffer}.=$pressed;
 			}
 			
-			$self->debugMessage("key pressed=$OrdKey $pressed $mode  ");
+			$self->debugMessage(["key pressed=$OrdKey $pressed $mode",$note ]);
 		}
 	  }
 	  

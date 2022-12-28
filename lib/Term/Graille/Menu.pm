@@ -43,7 +43,7 @@ use Storable qw(dclone);
 use Term::Graille qw/colour printAt clearScreen/;
 use utf8;
 
-our $VERSION=0.10;
+our $VERSION=0.11;
 
 =head3 C<my $menu=Term::Graille::Menu-E<gt>new(%params)>
 
