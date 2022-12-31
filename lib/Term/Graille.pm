@@ -420,8 +420,21 @@ sub blockBlit{  # needs protection
 	for my $x(0..$#{$blk->[0]}){
 		for my $y(0..$#$blk){
 			$self->{grid}->[$gridY+$y-$#$blk]->[$gridX+$x]=$blk->[$#$blk-$y]->[$x]
+			   if $self->inGrid( $gridX+$x,$gridY+$y-$#$blk);
 		}
 	}
+}
+
+=head3 C<$canvas-E<gt>inGrid($gridX, $gridY)> 
+
+Determines a character coordinate is in display area or not
+
+=cut
+
+
+sub inGrid{
+	my ($self, $gridX, $gridY)=@_;
+	(($gridX>=0) && ($gridY>=0) && ($gridX<$self->{width})  && ($gridY<$self->{height}))?1:0;
 }
 
 
@@ -461,7 +474,7 @@ sub importCanvas{
 
 =head3 C<$canvas-E<gt>textAt($x,$y,$text,$fmt)> 
 
-Printing text on the C<$canvas>.  This is different fromthe exported 
+Printing text on the C<$canvas>.  This is different from the exported 
 C<printAt()> function.  the characters are printed on the C<$canvas>
 and may be scrolled with the canvas and will overwrite or be over written
 othe $canvas drawing actions.  The optional C<$fmt> allows the setting of colour; 
