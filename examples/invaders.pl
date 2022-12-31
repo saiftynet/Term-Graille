@@ -15,15 +15,15 @@ my $spriteBank={};
 my $dir="./sprites/";
 my $scroll="left";
 
-loadSprites(qw/alien1 alien2 alien3 defender/);
+loadSprites(qw/alien1 alien2 alien3 defender spaceship/);
 $spriteBank->{patriot}=[[colour("blue")."↑".colour("reset")]];
 $spriteBank->{bomb}=[[colour("red")."↧".colour("reset")]];
 $spriteBank->{shield}=[[colour("yellow")."⢕".colour("reset")]];
-my (@aliens,@missiles,@shields);
+my (@aliens,@missiles,@shields,@spaceships);
 my $defender={sprite=>"defender",x=>40,y=>1,};
 my ($maxAlienX,$minAlienX,$alienDx,$alienDy,$alienMoveSkipStart,
     $alienSkipAccelerate,$aliensLanded,$stopUpdates,$alienMoveSkip,
-    $level, $score, $lives);
+    $level, $score, $lives, $highscore);
 
 my $canvas = Term::Graille->new(
 		width  => 150,
@@ -54,7 +54,7 @@ $io->run();
 
 sub update	{  
 	victory() unless scalar @aliens;
-	defeat() if $aliensLanded;
+	defeat("Aliens Landed") if $aliensLanded;
 	return if $stopUpdates;
 	updateScreen();
 	updateSprites();
@@ -66,7 +66,8 @@ sub updateScreen{
 	@aliens=grep($_->{sprite},@aliens);
 	@missiles=grep($_->{sprite},@missiles);	
 	@shields=grep($_->{sprite},@shields);	
-	foreach (@aliens,@missiles,$defender,@shields){
+	@spaceships=grep($_->{sprite},@spaceships);	
+	foreach (@aliens,@missiles,$defender,@shields,@spaceships){
       next unless defined $_->{sprite};
       my ($spr,$x,$y)=@$_{qw/sprite x y/};
       $canvas->blockBlit($spriteBank->{$spr},$x,$y);
@@ -76,8 +77,10 @@ sub updateScreen{
 		 }
       }	  
       push @missiles,{sprite=>"bomb",x=>2+rand()*70,y=>16,dy=>-1} if rand()<0.01;
+      push @spaceships,{sprite=>"spaceship",x=>3,y=>15,dx=>1} if rand()<0.005;
       $canvas->draw();
       printAt(3,40,"Score: $score Level: $level, Lives ".colour("red")."♥ "x$lives.colour("reset") );
+      printAt(16,0," ");
 }
 
 sub updateSprites{
@@ -94,6 +97,12 @@ sub updateSprites{
 		$alienMoveSkipStart-=0.1;
 		$alienMoveSkip=$alienMoveSkipStart;
 	}
+	foreach (@spaceships){
+			$_->{x}+=$_->{dx};
+			$_ ={} if  $_->{x} >=67;
+			push @missiles,{sprite=>"bomb",x=>$_->{x}+2,y=>16,dy=>-1}  if ((rand()<0.5) and ($_->{x}==$defender->{x}));
+			$_ ={} if  $_->{x} >=67;
+	}
 	foreach my $missile (@missiles){
 		next unless $missile->{y};
 		$missile->{y}+=$missile->{dy};
@@ -101,10 +110,10 @@ sub updateSprites{
 			$missile={};
 		};
 		next unless defined $missile->{sprite};
-		foreach my $alien (@aliens){
+		foreach my $alien (@aliens,@spaceships){
 			if ($missile->{sprite}&& $missile->{sprite} eq "patriot"&&(collide($missile,$alien))){
+				$score+=($alien->{sprite} eq "spaceship")?1000:10;
 				$missile=$alien={};
-				$score+=10;
 				$beep->playSound(undef,"D#1");
 			}
 		}
@@ -115,7 +124,7 @@ sub updateSprites{
 			}
 		}
 		if ($missile->{sprite} && $missile->{sprite} eq "bomb"){
-			defeat() if collide($missile,$defender)
+			defeat("Defender Died") if collide($missile,$defender)
 		}
 	}
 }
@@ -173,9 +182,10 @@ sub buildShields{
 }
 
 sub initialise{
+	clearScreen();
 	($maxAlienX,$minAlienX,$alienDx,$alienDy,$alienMoveSkipStart,
-	$alienSkipAccelerate,$aliensLanded,$level, $score, $lives)=
-	(0,200,1,0,8,0.01,0,1,0,3);
+	$alienSkipAccelerate,$aliensLanded,$level, $score, $lives, $highscore)=
+	(0,200,1,0,8,0.01,0,1,0,3, 0);
 	$stopUpdates=0;
 	$alienMoveSkip=$alienMoveSkipStart;
 	setupAliens();
@@ -185,10 +195,11 @@ sub initialise{
 }
 
 sub splash{
+	my $mainMessage=shift//"Space Invaders";
 	my $message=shift//"A Game for The PerlayStation Games Console 1";
 	my $format=shift//"blue";
 	$canvas->clear();
-	fontWrite($canvas,$grf,10,10,"Space Invaders");
+	fontWrite($canvas,$grf,10,10,$mainMessage);
 	$canvas->textAt(30,20,$message,$format);
 	$canvas->textAt(40,12,"Left Right Arrow keys move defender","cyan bold");
 	$canvas->textAt(40,8,"Up Arrow fires missile, 'p' pauses","cyan bold");
@@ -196,21 +207,32 @@ sub splash{
 	
 }
 
-
 sub victory{
-   splash("        You have cleared this level!!","green");
    $level++;$score+=500;
+   splash("Level clear!!","Lives $lives Score: $score","green");
    sleep 3;
    setupAliens();
 }
 sub defeat{
-   splash("            You have been defeated !!","red");
+   my $fail=shift;
    $lives--;
-   $stopUpdates=1 unless $lives;
+   splash($fail,"Lives $lives Score: $score","green");
+   gameover() unless $lives;
    setupAliens();
    sleep 4;
 }
 
+sub gameover{
+   $highscore=$score if $score>$highscore;
+   splash("  Annihilated!","Score: $score High Score: $highscore ","green");
+   sleep 4;
+   initialise();
+}
 
 
+sub quit{
+   splash("Good Bye!!","Score: $score High Score: $highscore ","green");
+   sleep 4;
+   exit;
+}
 
