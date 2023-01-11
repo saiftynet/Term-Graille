@@ -305,7 +305,7 @@ sub thick_line{
 
 =head3 C<$canvas-E<gt>varthick_line($x0,$y0,$x1,$y1,
        $left,$argL,
-       $right,$argR, $value)=@_;>
+       $right,$argR, $value)>
        
 Uses Algorithm::Line::Bresenham to draw a variable thickness, defined by
 end points C<$x0,$y0,$x1,$y1>) and thickness defined by two user defined
